@@ -12,9 +12,10 @@ import {
   useEffect,
   useImperativeHandle,
   useRef,
+  useState,
   type Ref,
 } from "react";
-import { ProfileCard } from "@/components/profile-card";
+import { ProfileCard, type CardView } from "@/components/profile-card";
 import type { PublicProfile, SwipeAction } from "@/lib/types";
 
 /** Drag further than this (px), or flick faster than VELOCITY (px/s), to commit. */
@@ -39,6 +40,10 @@ type SwipeCardProps = {
 export function SwipeCard({ profile, onSwiped, ref }: SwipeCardProps) {
   const x = useMotionValue(0);
   const reduceMotion = useReducedMotion();
+  // Each new card starts with the slim info strip.
+  const [view, setView] = useState<CardView>("compact");
+  // True once the current press has turned into a drag (so it isn't a tap).
+  const dragged = useRef(false);
   const rotate = useTransform(
     x,
     [-220, 0, 220],
@@ -82,6 +87,18 @@ export function SwipeCard({ profile, onSwiped, ref }: SwipeCardProps) {
       drag="x"
       dragMomentum={false}
       style={{ x, rotate }}
+      onPointerDown={() => {
+        dragged.current = false;
+      }}
+      onDragStart={() => {
+        dragged.current = true;
+      }}
+      // A tap hides or restores the info so the whole photo can be seen. A
+      // short drag that snaps back must not count as a tap.
+      onTap={() => {
+        if (dragged.current) return;
+        setView((v) => (v === "photo" ? "compact" : "photo"));
+      }}
       onDragEnd={(_, info) => {
         if (
           info.offset.x > DISTANCE_THRESHOLD ||
@@ -99,18 +116,23 @@ export function SwipeCard({ profile, onSwiped, ref }: SwipeCardProps) {
       }}
       className="absolute inset-0 cursor-grab touch-pan-y select-none active:cursor-grabbing"
     >
-      <ProfileCard profile={profile} priority />
+      <ProfileCard
+        profile={profile}
+        priority
+        view={view}
+        onViewChange={setView}
+      />
       <motion.div
         aria-hidden
         style={{ opacity: likeOpacity }}
-        className="edge hard bg-wa pointer-events-none absolute top-8 left-6 -rotate-12 rounded-2xl px-4 py-1 text-3xl font-extrabold tracking-tight"
+        className="edge hard bg-wa pointer-events-none absolute top-16 left-6 -rotate-12 rounded-2xl px-4 py-1 text-3xl font-extrabold tracking-tight"
       >
         LIKE
       </motion.div>
       <motion.div
         aria-hidden
         style={{ opacity: passOpacity }}
-        className="edge hard bg-paper pointer-events-none absolute top-8 right-6 rotate-12 rounded-2xl px-4 py-1 text-3xl font-extrabold tracking-tight"
+        className="edge hard bg-paper pointer-events-none absolute top-16 right-6 rotate-12 rounded-2xl px-4 py-1 text-3xl font-extrabold tracking-tight"
       >
         NOPE
       </motion.div>

@@ -7,14 +7,16 @@ A swipe-based **Discover** tab for [Coy](https://getcoy.com), the double-blind c
 Swipe right to like, left to pass. A match happens **only when both people liked each other**, and nothing in the app, the API, or the order of the deck ever reveals who liked you first. That is Coy's core promise, and it is the part of this project that is tested hardest.
 
 <p>
-  <img src="docs/screenshots/discover.png" alt="The swipe deck" width="230" />
-  <img src="docs/screenshots/drag-like.png" alt="Dragging a card shows the LIKE stamp" width="230" />
-  <img src="docs/screenshots/match.png" alt="The It's a match dialog" width="230" />
-  <img src="docs/screenshots/matches.png" alt="The Matches list" width="230" />
+  <img src="docs/screenshots/discover.png" alt="Photo first, with a slim info strip" width="180" />
+  <img src="docs/screenshots/details.png" alt="More expands the bio and interests" width="180" />
+  <img src="docs/screenshots/photo-only.png" alt="Tap the photo to hide the info" width="180" />
+  <img src="docs/screenshots/match.png" alt="The It's a match dialog" width="180" />
+  <img src="docs/screenshots/matches.png" alt="The Matches list" width="180" />
 </p>
 
 ## Features
 
+- **Photo-first cards**: each card shows the face with only a slim name, age and city strip. **Tap the photo** and all the info disappears so you see the whole picture (tap again to bring it back); **More** expands the bio and interests. An eye button does the same toggle for keyboard and screen-reader users.
 - **Swipe deck**: one card at a time, drag gestures on touch and mouse, **Like / Pass buttons** and **← / → keys** on desktop. The card follows your finger, tilts, and shows LIKE / NOPE stamps; release past the threshold (or flick) and it flies off, otherwise it springs back.
 - **Never repeats**: a swiped profile never appears again, even across reloads or while its swipe is still in flight.
 - **It's a match!** dialog on a mutual like (focus-trapped, `Esc` to close, confetti unless you prefer reduced motion) and a **Matches** view listing everyone you matched with.

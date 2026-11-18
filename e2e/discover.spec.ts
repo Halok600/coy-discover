@@ -33,16 +33,85 @@ test.describe("tabs", () => {
 });
 
 test.describe("swiping", () => {
-  test("shows one profile at a time with the full card details", async ({
+  test("shows one profile at a time, photo first with a slim info strip", async ({
     page,
   }) => {
     await openDiscover(page);
     await expect(card(page)).toHaveCount(1);
     const article = card(page).getByRole("article");
     await expect(article.locator("h2")).toBeVisible();
-    await expect(
-      article.getByRole("list", { name: "Interests" }),
-    ).toBeVisible();
+    // The bio and interests stay out of the way until asked for.
+    await expect(article.getByRole("list", { name: "Interests" })).toHaveCount(
+      0,
+    );
+  });
+
+  test("More expands the bio and interests, Less collapses them", async ({
+    page,
+  }) => {
+    await openDiscover(page);
+    const interests = card(page).getByRole("list", { name: "Interests" });
+
+    await card(page)
+      .getByRole("button", { name: /^More about/ })
+      .click();
+    await expect(interests).toBeVisible();
+
+    await card(page)
+      .getByRole("button", { name: /^Less about/ })
+      .click();
+    await expect(interests).toHaveCount(0);
+  });
+
+  test("tapping the photo hides all the info, and tapping again restores it", async ({
+    page,
+  }) => {
+    await openDiscover(page);
+    let swipeRequests = 0;
+    page.on("request", (r) => r.url().endsWith("/swipe") && swipeRequests++);
+    const heading = card(page).locator("h2");
+    const hint = card(page).getByText("Tap the photo to show info");
+    // Top-left of the card: bare photo, clear of every button.
+    const photo = { position: { x: 50, y: 100 } };
+
+    await card(page).click(photo);
+    await expect(heading).toBeHidden();
+    await expect(hint).toBeVisible();
+
+    await card(page).click(photo);
+    await expect(heading).toBeVisible();
+    await expect(hint).toBeHidden();
+
+    // Tapping is not swiping.
+    expect(swipeRequests).toBe(0);
+  });
+
+  test("the eye button gives the same toggle without a tap", async ({
+    page,
+  }) => {
+    await openDiscover(page);
+    const heading = card(page).locator("h2");
+
+    await card(page)
+      .getByRole("button", { name: "Hide details to see the photo" })
+      .click();
+    await expect(heading).toBeHidden();
+
+    const show = card(page).getByRole("button", { name: "Show details" });
+    await expect(show).toHaveAttribute("aria-pressed", "true");
+    await show.click();
+    await expect(heading).toBeVisible();
+  });
+
+  test("each new card starts with the info showing", async ({ page }) => {
+    await openDiscover(page);
+    await card(page)
+      .getByRole("button", { name: "Hide details to see the photo" })
+      .click();
+    await expect(card(page).locator("h2")).toBeHidden();
+
+    await page.getByRole("button", { name: "Pass" }).click();
+    await expect(card(page).locator("h2")).toBeVisible();
   });
 
   test("the Like and Pass buttons advance the deck", async ({ page }) => {
@@ -94,6 +163,8 @@ test.describe("swiping", () => {
 
     expect(await topName(page)).toBe(before);
     expect(swipeRequests).toBe(0);
+    // A drag is not a tap: the info is still showing.
+    await expect(card(page).locator("h2")).toBeVisible();
   });
 
   test("arrow keys swipe on desktop", async ({ page }) => {

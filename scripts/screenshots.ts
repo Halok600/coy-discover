@@ -32,6 +32,17 @@ async function main() {
   await imagesLoaded(page);
   await page.screenshot({ path: `${OUT}/discover.png` });
 
+  // 1b. Expanded details, then photo only (tap the bare photo).
+  const photoSpot = { position: { x: 50, y: 100 } };
+  await page.getByRole("button", { name: /^More about/ }).click();
+  await page.waitForTimeout(500);
+  await page.screenshot({ path: `${OUT}/details.png` });
+  await page.getByTestId("swipe-card").click(photoSpot);
+  await page.waitForTimeout(500);
+  await page.screenshot({ path: `${OUT}/photo-only.png` });
+  await page.getByTestId("swipe-card").click(photoSpot); // back to the strip
+  await page.waitForTimeout(500);
+
   // 2. Mid-drag, with the LIKE stamp showing.
   const box = (await page.getByTestId("swipe-card").boundingBox())!;
   const cx = box.x + box.width / 2;
