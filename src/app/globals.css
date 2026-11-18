@@ -1,26 +1,70 @@
 @import "tailwindcss";
 
+/* Design tokens. Light by default, dark via the OS preference. */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --bg: #fdf3f1;
+  --surface: #ffffff;
+  --ink: #241a26;
+  --muted: #6d6071;
+  --line: #f0e1de;
+  --brand: #e11d5a;
+  --brand-strong: #be123c;
+  --brand-ink: #ffffff;
+  --like: #16a34a;
+  --pass: #6d6071;
+  color-scheme: light;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --bg: #120d17;
+    --surface: #1d1624;
+    --ink: #f6eef4;
+    --muted: #a99bb0;
+    --line: #2d2335;
+    --brand: #fb4a7e;
+    --brand-strong: #ff6b96;
+    --brand-ink: #1a0610;
+    --like: #4ade80;
+    --pass: #a99bb0;
+    color-scheme: dark;
   }
 }
 
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-brand: var(--brand);
+  --color-brand-strong: var(--brand-strong);
+  --color-brand-ink: var(--brand-ink);
+  --color-like: var(--like);
+  --color-pass: var(--pass);
+  --font-sans: var(--font-geist-sans), system-ui, sans-serif;
+}
+
+html,
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Keyboard focus is always visible; mouse focus stays quiet. */
+:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
