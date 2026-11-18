@@ -1,6 +1,6 @@
 "use client";
 
-import { CloudOff, Heart, PartyPopper, RotateCcw } from "lucide-react";
+import { CloudOff, Heart, Lock, PartyPopper, RotateCcw } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { MatchModal } from "@/components/match-modal";
@@ -84,18 +84,28 @@ export function DiscoverScreen() {
 
   return (
     <div className="relative flex h-full flex-col">
-      <header className="flex items-center justify-between px-5 pt-5 pb-3">
-        <h1 className="text-2xl font-extrabold tracking-tight">Discover</h1>
+      <header className="flex items-start justify-between px-5 pt-5 pb-4">
+        <div>
+          <h1 className="display text-[38px]">Discover</h1>
+          <span className="edge hard-sm bg-yellow mt-2 inline-flex -rotate-2 items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-bold">
+            <Lock aria-hidden className="size-3" strokeWidth={2.75} />
+            Only mutual likes
+          </span>
+        </div>
         <Link
           href="/discover/matches"
           aria-label={matchCount ? `Matches, ${matchCount}` : "Matches"}
-          className="border-line bg-surface relative grid size-11 place-items-center rounded-full border shadow-sm transition active:scale-95"
+          className="edge hard press bg-paper relative grid size-12 place-items-center rounded-full"
         >
-          <Heart aria-hidden className="text-brand size-5" />
+          <Heart
+            aria-hidden
+            className="fill-pink text-pink size-6"
+            strokeWidth={2.5}
+          />
           {matchCount > 0 ? (
             <span
               data-testid="match-count"
-              className="bg-brand text-brand-ink absolute -top-1 -right-1 grid min-w-5 place-items-center rounded-full px-1 text-xs font-bold"
+              className="edge bg-yellow absolute -top-2 -right-2 grid min-w-6 place-items-center rounded-full px-1 text-xs font-extrabold"
             >
               {matchCount}
             </span>
@@ -109,6 +119,7 @@ export function DiscoverScreen() {
         {deck.status === "error" ? (
           <StateMessage
             icon={CloudOff}
+            tone="peach"
             title="Couldn't load profiles"
             description="Check your connection and try again."
           >
@@ -128,7 +139,7 @@ export function DiscoverScreen() {
               <div
                 inert
                 aria-hidden
-                className="pointer-events-none absolute inset-0 scale-[0.95] opacity-90"
+                className="pointer-events-none absolute inset-0 scale-[0.95] -rotate-2"
               >
                 <ProfileCard profile={next} />
               </div>
@@ -146,6 +157,7 @@ export function DiscoverScreen() {
           <StateMessage
             testId="caught-up"
             icon={PartyPopper}
+            tone="mint"
             title="You're all caught up"
             description="No more profiles right now. Check your matches, or start over."
           >

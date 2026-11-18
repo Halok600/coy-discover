@@ -1,6 +1,9 @@
 import { MapPin } from "lucide-react";
+import { Photo, PASTELS } from "@/components/photo";
 import type { PublicProfile } from "@/lib/types";
-import { Photo } from "@/components/photo";
+
+/** Interests shown on the card; the rest stay out of the way. */
+const MAX_INTERESTS = 4;
 
 export function ProfileCard({
   profile,
@@ -12,7 +15,7 @@ export function ProfileCard({
   return (
     <article
       aria-label={`${profile.name}, ${profile.age}`}
-      className="bg-surface relative size-full overflow-hidden rounded-3xl shadow-xl ring-1 ring-black/5"
+      className="edge hard bg-soft relative size-full overflow-hidden rounded-[26px]"
     >
       <Photo
         src={profile.photoUrl}
@@ -20,23 +23,26 @@ export function ProfileCard({
         sizes="(max-width: 440px) 100vw, 440px"
         priority={priority}
       />
-      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/55 to-transparent p-5 pt-28 text-white">
-        <h2 className="text-2xl leading-tight font-bold">
+      {/* A sticker-style info panel, like the cards on Coy's site. */}
+      <div className="edge bg-paper absolute inset-x-3 bottom-3 rounded-[20px] p-4">
+        <h2 className="display text-[30px]">
           {profile.name}
-          <span className="ml-2 font-normal text-white/85">{profile.age}</span>
+          <span className="text-muted ml-2 text-[22px] font-bold tracking-normal">
+            {profile.age}
+          </span>
         </h2>
-        <p className="mt-1 flex items-center gap-1 text-sm text-white/85">
-          <MapPin aria-hidden className="size-3.5 shrink-0" />
+        <p className="text-muted mt-1.5 flex items-center gap-1 text-sm font-semibold">
+          <MapPin aria-hidden className="size-3.5 shrink-0" strokeWidth={2.5} />
           {profile.location}
         </p>
-        <p className="mt-2 line-clamp-3 text-[15px] leading-snug text-white/95">
+        <p className="mt-2 line-clamp-2 text-[15px] leading-snug font-medium">
           {profile.bio}
         </p>
         <ul aria-label="Interests" className="mt-3 flex flex-wrap gap-1.5">
-          {profile.interests.map((interest) => (
+          {profile.interests.slice(0, MAX_INTERESTS).map((interest, i) => (
             <li
               key={interest}
-              className="rounded-full bg-white/20 px-2.5 py-1 text-xs font-medium backdrop-blur-sm"
+              className={`border-ink rounded-full border-[1.5px] px-2.5 py-0.5 text-xs font-bold ${PASTELS[(i + profile.name.length) % PASTELS.length]}`}
             >
               {interest}
             </li>

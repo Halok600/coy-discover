@@ -23,7 +23,7 @@ export function Toast({
       className="pointer-events-none absolute inset-x-4 bottom-28 z-40 flex justify-center"
     >
       {message ? (
-        <div className="bg-ink text-bg pointer-events-auto rounded-full px-4 py-2 text-sm font-medium shadow-lg">
+        <div className="edge hard bg-yellow text-ink pointer-events-auto rounded-full px-4 py-2 text-sm font-bold">
           {message}
         </div>
       ) : null}

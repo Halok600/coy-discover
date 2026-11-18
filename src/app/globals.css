@@ -1,53 +1,80 @@
 @import "tailwindcss";
 
-/* Design tokens. Light by default, dark via the OS preference. */
+/*
+ * Design tokens follow Coy's own site (getcoy.com): ink-on-white, hot pink,
+ * pastel cards, thick ink outlines and hard offset shadows. There is no dark
+ * mode, as on Coy's site.
+ */
 :root {
-  --bg: #fdf3f1;
-  --surface: #ffffff;
-  --ink: #241a26;
-  --muted: #6d6071;
-  --line: #f0e1de;
-  --brand: #e11d5a;
-  --brand-strong: #be123c;
-  --brand-ink: #ffffff;
-  --like: #16a34a;
-  --pass: #6d6071;
+  --ink: #15121d;
+  --muted: #6d6979;
+  --paper: #ffffff;
+  --soft: #f6f4fa;
+  --line: #ece9f2;
+  --pink: #ff3d81;
+  --pink-strong: #d81e63;
+  --pink-soft: #ffe4ef;
+  --yellow: #ffe45c;
+  --lilac: #e7e0ff;
+  --mint: #cbf4e0;
+  --sky: #d7ecff;
+  --peach: #ffe1cf;
+  --wa: #25d366;
   color-scheme: light;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #120d17;
-    --surface: #1d1624;
-    --ink: #f6eef4;
-    --muted: #a99bb0;
-    --line: #2d2335;
-    --brand: #fb4a7e;
-    --brand-strong: #ff6b96;
-    --brand-ink: #1a0610;
-    --like: #4ade80;
-    --pass: #a99bb0;
-    color-scheme: dark;
-  }
-}
-
 @theme inline {
-  --color-bg: var(--bg);
-  --color-surface: var(--surface);
   --color-ink: var(--ink);
   --color-muted: var(--muted);
+  --color-paper: var(--paper);
+  --color-soft: var(--soft);
   --color-line: var(--line);
-  --color-brand: var(--brand);
-  --color-brand-strong: var(--brand-strong);
-  --color-brand-ink: var(--brand-ink);
-  --color-like: var(--like);
-  --color-pass: var(--pass);
-  --font-sans: var(--font-geist-sans), system-ui, sans-serif;
+  --color-pink: var(--pink);
+  --color-pink-strong: var(--pink-strong);
+  --color-pink-soft: var(--pink-soft);
+  --color-yellow: var(--yellow);
+  --color-lilac: var(--lilac);
+  --color-mint: var(--mint);
+  --color-sky: var(--sky);
+  --color-peach: var(--peach);
+  --color-wa: var(--wa);
+  --font-sans:
+    var(--font-bricolage), system-ui, -apple-system, "Segoe UI", Roboto,
+    sans-serif;
+}
+
+/* The signature look: ink outline + hard offset shadow, and the press-down. */
+@utility edge {
+  border: 2px solid var(--ink);
+}
+@utility hard-sm {
+  box-shadow: 2px 2px 0 var(--ink);
+}
+@utility hard {
+  box-shadow: 3px 3px 0 var(--ink);
+}
+@utility hard-lg {
+  box-shadow: 6px 6px 0 var(--ink);
+}
+@utility press {
+  transition:
+    transform 80ms ease-out,
+    box-shadow 80ms ease-out;
+  &:active:not(:disabled) {
+    transform: translate(3px, 3px);
+    box-shadow: 0 0 0 var(--ink);
+  }
+}
+/* Big, tight, heavy headings like Coy's. */
+@utility display {
+  font-weight: 800;
+  letter-spacing: -0.045em;
+  line-height: 0.95;
 }
 
 html,
 body {
-  background: var(--bg);
+  background: var(--paper);
   color: var(--ink);
   font-family: var(--font-sans);
   -webkit-tap-highlight-color: transparent;
@@ -55,8 +82,8 @@ body {
 
 /* Keyboard focus is always visible; mouse focus stays quiet. */
 :focus-visible {
-  outline: 2px solid var(--brand);
-  outline-offset: 2px;
+  outline: 3px solid var(--pink-strong);
+  outline-offset: 3px;
 }
 
 @media (prefers-reduced-motion: reduce) {

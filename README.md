@@ -20,7 +20,8 @@ Swipe right to like, left to pass. A match happens **only when both people liked
 - **It's a match!** dialog on a mutual like (focus-trapped, `Esc` to close, confetti unless you prefer reduced motion) and a **Matches** view listing everyone you matched with.
 - **Clear states**: loading skeletons, an offline/error state with retry, a "You're all caught up" empty state with **Start over**.
 - **Persistent**: swipes and matches live in Postgres, so they survive reloads.
-- **Mobile-first**, with a centered device-style column on desktop, light and dark themes, `prefers-reduced-motion` support and screen-reader announcements for each swipe.
+- **Coy's own look**: Bricolage Grotesque, ink outlines with hard offset shadows, pastel cards, pill buttons and the tilted pink match card, taken from the design tokens on getcoy.com.
+- **Mobile-first**, with a framed device-style column on desktop, `prefers-reduced-motion` support and screen-reader announcements for each swipe.
 
 ## Privacy design
 

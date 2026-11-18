@@ -25,9 +25,9 @@ export function TabBar() {
   return (
     <nav
       aria-label="Main"
-      className="border-line bg-surface border-t pb-[env(safe-area-inset-bottom)]"
+      className="bg-paper border-ink border-t-2 pb-[env(safe-area-inset-bottom)]"
     >
-      <ul className="grid grid-cols-2">
+      <ul className="grid grid-cols-2 gap-2 p-2.5">
         {TABS.map(({ href, label, icon: Icon, isActive }) => {
           const active = isActive(pathname);
           return (
@@ -35,11 +35,13 @@ export function TabBar() {
               <Link
                 href={href}
                 aria-current={active ? "page" : undefined}
-                className={`flex flex-col items-center gap-0.5 py-2.5 text-xs font-medium transition-colors ${
-                  active ? "text-brand" : "text-muted hover:text-ink"
+                className={`flex h-12 items-center justify-center gap-2 rounded-full border-2 text-base font-bold transition-colors ${
+                  active
+                    ? "bg-pink hard-sm border-ink"
+                    : "hover:bg-soft border-transparent"
                 }`}
               >
-                <Icon className="size-6" strokeWidth={active ? 2.5 : 2} />
+                <Icon aria-hidden className="size-5" strokeWidth={2.5} />
                 {label}
               </Link>
             </li>

@@ -2,7 +2,7 @@
 
 import { ArrowLeft, CloudOff, HeartHandshake, MapPin } from "lucide-react";
 import Link from "next/link";
-import { Avatar } from "@/components/photo";
+import { Avatar, PASTELS } from "@/components/photo";
 import { MatchRowSkeleton } from "@/components/skeletons";
 import {
   primaryButton,
@@ -17,18 +17,18 @@ export function MatchesScreen() {
 
   return (
     <div className="flex min-h-full flex-col">
-      <header className="flex items-center gap-3 px-4 pt-5 pb-3">
+      <header className="flex items-center gap-4 px-5 pt-5 pb-4">
         <Link
           href="/discover"
           aria-label="Back to Discover"
-          className="border-line bg-surface grid size-11 place-items-center rounded-full border shadow-sm transition active:scale-95"
+          className="edge hard press bg-paper grid size-12 place-items-center rounded-full"
         >
-          <ArrowLeft aria-hidden className="size-5" />
+          <ArrowLeft aria-hidden className="size-6" strokeWidth={2.75} />
         </Link>
-        <h1 className="text-2xl font-extrabold tracking-tight">Matches</h1>
+        <h1 className="display text-[38px]">Matches</h1>
       </header>
 
-      <div className="flex-1 px-4 pb-4">
+      <div className="flex-1 px-5 pb-5">
         {isPending ? (
           <div className="space-y-3" role="status" aria-label="Loading matches">
             <MatchRowSkeleton />
@@ -41,6 +41,7 @@ export function MatchesScreen() {
           <div className="h-80">
             <StateMessage
               icon={CloudOff}
+              tone="peach"
               title="Couldn't load matches"
               description="Check your connection and try again."
             >
@@ -60,6 +61,7 @@ export function MatchesScreen() {
             <StateMessage
               testId="no-matches"
               icon={HeartHandshake}
+              tone="lilac"
               title="No matches yet"
               description="A match appears here when you and someone else like each other."
             >
@@ -71,26 +73,34 @@ export function MatchesScreen() {
         ) : null}
 
         {data && data.matches.length > 0 ? (
-          <ul className="space-y-3" aria-label="Your matches">
-            {data.matches.map(({ id, matchedAt, profile }) => (
+          <ul className="space-y-4" aria-label="Your matches">
+            {data.matches.map(({ id, matchedAt, profile }, index) => (
               <li
                 key={id}
                 data-testid="match-item"
-                className="border-line bg-surface flex items-center gap-4 rounded-2xl border p-3 shadow-sm"
+                className={`edge hard flex items-center gap-4 rounded-[22px] p-3 ${PASTELS[index % PASTELS.length]}`}
               >
-                <Avatar src={profile.photoUrl} name={profile.name} />
+                <Avatar
+                  src={profile.photoUrl}
+                  name={profile.name}
+                  className="size-16"
+                />
                 <div className="min-w-0 flex-1">
-                  <h2 className="truncate font-semibold">
+                  <h2 className="truncate text-xl leading-tight font-extrabold tracking-tight">
                     {profile.name}
-                    <span className="text-muted ml-1.5 font-normal">
+                    <span className="ml-1.5 font-bold opacity-60">
                       {profile.age}
                     </span>
                   </h2>
-                  <p className="text-muted flex items-center gap-1 truncate text-sm">
-                    <MapPin aria-hidden className="size-3.5 shrink-0" />
+                  <p className="flex items-center gap-1 truncate text-sm font-semibold">
+                    <MapPin
+                      aria-hidden
+                      className="size-3.5 shrink-0"
+                      strokeWidth={2.5}
+                    />
                     {profile.location}
                   </p>
-                  <p className="text-brand text-xs">
+                  <p className="edge bg-paper mt-1.5 inline-block rounded-full px-2 py-px text-xs font-bold">
                     Matched {timeAgo(matchedAt)}
                   </p>
                 </div>

@@ -5,11 +5,12 @@ import { motion, useReducedMotion } from "motion/react";
 import Link from "next/link";
 import { useEffect, useRef } from "react";
 import { Avatar } from "@/components/photo";
-import { primaryButton, secondaryButton } from "@/components/state-message";
+import { positiveButton, secondaryButton } from "@/components/state-message";
 import type { MatchDto } from "@/lib/types";
 
-const CONFETTI_COLORS = ["#e11d5a", "#fb923c", "#facc15", "#4ade80", "#38bdf8"];
-const CONFETTI_COUNT = 20;
+// Coy's palette.
+const CONFETTI_COLORS = ["#ff3d81", "#ffe45c", "#cbf4e0", "#d7ecff", "#e7e0ff"];
+const CONFETTI_COUNT = 22;
 
 function Confetti() {
   return (
@@ -19,11 +20,11 @@ function Confetti() {
     >
       {Array.from({ length: CONFETTI_COUNT }, (_, i) => {
         const angle = (i / CONFETTI_COUNT) * Math.PI * 2;
-        const distance = 130 + (i % 3) * 45;
+        const distance = 140 + (i % 3) * 50;
         return (
           <motion.span
             key={i}
-            className="absolute size-2.5 rounded-sm"
+            className="border-ink absolute size-3 rounded-sm border-2"
             style={{
               backgroundColor: CONFETTI_COLORS[i % CONFETTI_COLORS.length],
             }}
@@ -48,7 +49,10 @@ type MatchModalProps = {
   onClose: () => void;
 };
 
-/** Full-screen "It's a match!" dialog with focus management and Escape to close. */
+/**
+ * Full-screen "It's a match!" dialog, modeled on the tilted pink match card on
+ * Coy's site. Traps focus and closes on Escape.
+ */
 export function MatchModal({ match, onClose }: MatchModalProps) {
   const reduceMotion = useReducedMotion();
   const dialogRef = useRef<HTMLDivElement>(null);
@@ -98,42 +102,45 @@ export function MatchModal({ match, onClose }: MatchModalProps) {
       aria-modal="true"
       aria-labelledby="match-title"
       data-testid="match-modal"
-      className="fixed inset-0 z-50 grid place-items-center bg-black/70 p-6 backdrop-blur-sm"
+      className="bg-ink/75 fixed inset-0 z-50 grid place-items-center p-6"
     >
       {reduceMotion ? null : <Confetti />}
       <motion.div
         ref={dialogRef}
-        initial={reduceMotion ? false : { scale: 0.85, opacity: 0, y: 16 }}
-        animate={{ scale: 1, opacity: 1, y: 0 }}
-        transition={{ type: "spring", stiffness: 380, damping: 26 }}
-        className="bg-surface relative w-full max-w-sm rounded-3xl p-7 text-center shadow-2xl"
+        initial={reduceMotion ? false : { scale: 0.8, opacity: 0, rotate: 8 }}
+        animate={{ scale: 1, opacity: 1, rotate: 2 }}
+        transition={{ type: "spring", stiffness: 380, damping: 24 }}
+        className="edge hard-lg bg-pink relative w-full max-w-sm rounded-[28px] p-7 text-center"
       >
-        <div className="flex items-center justify-center -space-x-5">
-          <div className="from-brand ring-surface grid size-24 place-items-center rounded-full bg-gradient-to-br to-orange-400 text-xl font-bold text-white ring-4">
+        <div className="flex items-center justify-center">
+          <div className="edge bg-peach grid size-24 place-items-center rounded-full text-2xl font-extrabold tracking-tight">
             You
           </div>
+          <span className="edge bg-paper z-10 -mx-3 grid size-11 place-items-center rounded-full">
+            <Heart
+              aria-hidden
+              className="fill-pink text-pink size-5"
+              strokeWidth={2.5}
+            />
+          </span>
           <Avatar
             src={profile.photoUrl}
             name={profile.name}
-            className="ring-surface size-24 ring-4"
+            className="size-24"
           />
         </div>
-        <h2
-          id="match-title"
-          className="text-brand mt-6 flex items-center justify-center gap-2 text-3xl font-extrabold tracking-tight"
-        >
-          <Heart aria-hidden className="size-7 fill-current" />
+        <h2 id="match-title" className="display mt-5 text-[44px]">
           It&rsquo;s a match!
         </h2>
-        <p className="text-muted mt-2">
-          You and <strong className="text-ink">{profile.name}</strong> liked
-          each other.
+        <p className="mt-3 text-base leading-snug font-medium">
+          You and <strong className="font-extrabold">{profile.name}</strong>{" "}
+          liked each other.
         </p>
         <div className="mt-6 grid gap-3">
           <Link
             href="/discover/matches"
             onClick={onClose}
-            className={primaryButton}
+            className={positiveButton}
           >
             See matches
           </Link>

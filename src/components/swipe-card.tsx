@@ -103,14 +103,14 @@ export function SwipeCard({ profile, onSwiped, ref }: SwipeCardProps) {
       <motion.div
         aria-hidden
         style={{ opacity: likeOpacity }}
-        className="border-like text-like pointer-events-none absolute top-8 left-6 -rotate-12 rounded-xl border-4 bg-black/25 px-3 py-1 text-3xl font-extrabold tracking-widest backdrop-blur-sm"
+        className="edge hard bg-wa pointer-events-none absolute top-8 left-6 -rotate-12 rounded-2xl px-4 py-1 text-3xl font-extrabold tracking-tight"
       >
         LIKE
       </motion.div>
       <motion.div
         aria-hidden
         style={{ opacity: passOpacity }}
-        className="pointer-events-none absolute top-8 right-6 rotate-12 rounded-xl border-4 border-white/90 bg-black/25 px-3 py-1 text-3xl font-extrabold tracking-widest text-white/90 backdrop-blur-sm"
+        className="edge hard bg-paper pointer-events-none absolute top-8 right-6 rotate-12 rounded-2xl px-4 py-1 text-3xl font-extrabold tracking-tight"
       >
         NOPE
       </motion.div>
