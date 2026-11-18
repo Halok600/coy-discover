@@ -1,11 +1,7 @@
 import { sql } from "drizzle-orm";
 import type { Db } from "@/server/db/client";
 import { users } from "@/server/db/schema";
-import {
-  memberId,
-  PORTRAIT_BASE_URL,
-  SEED_PROFILES,
-} from "@/server/seed/profiles";
+import { memberId, photoUrl, SEED_PROFILES } from "@/server/seed/profiles";
 
 /**
  * Upserts the swipeable member profiles. Safe to run on every deploy: rows are
@@ -18,7 +14,7 @@ export async function seedMembers(db: Db): Promise<number> {
     kind: "member" as const,
     name: profile.name,
     age: profile.age,
-    photoUrl: `${PORTRAIT_BASE_URL}/${profile.portrait}.jpg`,
+    photoUrl: photoUrl(profile.photo),
     bio: profile.bio,
     location: profile.location,
     interests: profile.interests,

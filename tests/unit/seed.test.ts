@@ -21,7 +21,9 @@ describe("seed data", () => {
     for (const profile of SEED_PROFILES) {
       expect(profile.name.trim().length).toBeGreaterThan(0);
       expect(profile.age).toBeGreaterThanOrEqual(18);
-      expect(profile.portrait).toMatch(/^(men|women)\/\d{1,2}$/);
+      expect(Number.isInteger(profile.photo)).toBe(true);
+      expect(profile.photo).toBeGreaterThanOrEqual(1);
+      expect(profile.photo).toBeLessThanOrEqual(70);
       expect(profile.location.trim().length).toBeGreaterThan(0);
       expect(profile.bio.trim().length).toBeGreaterThan(20);
       expect(profile.interests.length).toBeGreaterThanOrEqual(3);
@@ -30,7 +32,7 @@ describe("seed data", () => {
 
   it("uses unique names and unique photos", () => {
     const names = new Set(SEED_PROFILES.map((p) => p.name));
-    const photos = new Set(SEED_PROFILES.map((p) => p.portrait));
+    const photos = new Set(SEED_PROFILES.map((p) => p.photo));
     expect(names.size).toBe(SEED_PROFILES.length);
     expect(photos.size).toBe(SEED_PROFILES.length);
   });
