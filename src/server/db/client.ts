@@ -58,7 +58,11 @@ async function initDb(): Promise<Db> {
   const url = process.env.DATABASE_URL;
   if (url) return createPgDb(url);
 
-  const db = await createPgliteDb(LOCAL_DATA_DIR);
+  // PGLITE_DATA_DIR lets the e2e suite use a throwaway database.
+  const dataDir = process.env.PGLITE_DATA_DIR
+    ? path.resolve(process.env.PGLITE_DATA_DIR)
+    : LOCAL_DATA_DIR;
+  const db = await createPgliteDb(dataDir);
   const { seedMembers } = await import("@/server/seed/seed");
   await seedMembers(db);
   return db;
