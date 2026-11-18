@@ -65,18 +65,19 @@ test.describe("swiping", () => {
       [-220, "pass"],
     ] as const) {
       const before = await topName(page);
-      const swipeSent = page.waitForRequest((request) => {
-        if (!request.url().endsWith("/swipe")) return false;
-        return request.postDataJSON().action === label;
-      });
+      const swipeDone = page.waitForResponse(
+        (response) =>
+          response.url().endsWith("/swipe") &&
+          response.request().method() === "POST" &&
+          response.request().postDataJSON().action === label,
+      );
       const drag = await dragCard(page, dx);
       await drag.release();
-      await swipeSent;
+      // Wait for the server's answer: a mutual like opens the match dialog,
+      // which must be closed before the next drag can reach the card.
+      const response = await swipeDone;
+      if ((await response.json()).matched) await dismissMatch(page);
       await expect.poll(() => topName(page)).not.toBe(before);
-      // A mutual like opens the match dialog; close it so the next drag works.
-      if (await page.getByTestId("match-modal").isVisible()) {
-        await dismissMatch(page);
-      }
     }
   });
 
