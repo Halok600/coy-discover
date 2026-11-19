@@ -27,7 +27,7 @@ export function TabBar() {
       aria-label="Main"
       className="bg-paper border-ink border-t-2 pb-[env(safe-area-inset-bottom)]"
     >
-      <ul className="grid grid-cols-2 gap-2 p-2.5">
+      <ul className="short:p-1.5 grid grid-cols-2 gap-2 p-2.5">
         {TABS.map(({ href, label, icon: Icon, isActive }) => {
           const active = isActive(pathname);
           return (
@@ -35,7 +35,7 @@ export function TabBar() {
               <Link
                 href={href}
                 aria-current={active ? "page" : undefined}
-                className={`flex h-12 items-center justify-center gap-2 rounded-full border-2 text-base font-bold transition-colors ${
+                className={`short:h-11 flex h-12 items-center justify-center gap-2 rounded-full border-2 text-base font-bold transition-colors ${
                   active
                     ? "bg-pink hard-sm border-ink"
                     : "hover:bg-soft border-transparent"

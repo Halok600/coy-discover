@@ -8,7 +8,7 @@ import type { MatchDto, PublicProfile, SwipeAction } from "@/lib/types";
 
 const PAGE_SIZE = 10;
 /** Fetch the next page when this many cards (or fewer) are left. */
-const PREFETCH_THRESHOLD = 3;
+const PREFETCH_THRESHOLD = 5;
 const RETRY_DELAY_MS = 500;
 
 export type DeckStatus = "loading" | "ready" | "error";
@@ -27,6 +27,8 @@ export function useDeck(onMatch: (match: MatchDto) => void) {
   const [hasMore, setHasMore] = useState(true);
   const [status, setStatus] = useState<DeckStatus>("loading");
   const [notice, setNotice] = useState<string | null>(null);
+  // The last attempt to load more profiles failed.
+  const [refillFailed, setRefillFailed] = useState(false);
 
   const seen = useRef(new Set<string>());
   const fetching = useRef(false);
@@ -54,6 +56,7 @@ export function useDeck(onMatch: (match: MatchDto) => void) {
       });
       setHasMore(page.hasMore);
       setStatus("ready");
+      setRefillFailed(false);
       // The server may still list profiles whose swipe is in flight. If the
       // page added nothing new, look again shortly instead of spinning.
       if (page.hasMore && fresh.length === 0) {
@@ -63,6 +66,7 @@ export function useDeck(onMatch: (match: MatchDto) => void) {
         );
       }
     } catch {
+      setRefillFailed(true);
       setStatus((current) => (current === "loading" ? "error" : current));
       setNotice("Couldn't load profiles. Check your connection.");
     } finally {
@@ -124,12 +128,14 @@ export function useDeck(onMatch: (match: MatchDto) => void) {
     seen.current.clear();
     setQueue([]);
     setHasMore(true);
+    setRefillFailed(false);
     setStatus("loading");
     await queryClient.invalidateQueries({ queryKey: MATCHES_KEY });
     await load();
   }, [load, queryClient]);
 
   const retry = useCallback(() => {
+    setRefillFailed(false);
     setStatus("loading");
     void load();
   }, [load]);
@@ -139,6 +145,7 @@ export function useDeck(onMatch: (match: MatchDto) => void) {
   return {
     queue,
     hasMore,
+    refillFailed,
     status,
     notice,
     swipe,

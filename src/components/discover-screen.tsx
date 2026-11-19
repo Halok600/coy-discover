@@ -78,16 +78,21 @@ export function DiscoverScreen() {
   }
 
   const showCaughtUp = deck.status === "ready" && !top && !deck.hasMore;
+  // Out of cards, more exist, and the last attempt to fetch them failed:
+  // offer a retry instead of waiting on a skeleton that will never resolve.
+  const stalled =
+    deck.status === "ready" && !top && deck.hasMore && deck.refillFailed;
+  const showError = deck.status === "error" || stalled;
   const showSkeleton =
     deck.status === "loading" ||
-    (deck.status === "ready" && !top && deck.hasMore);
+    (deck.status === "ready" && !top && deck.hasMore && !deck.refillFailed);
 
   return (
-    <div className="relative flex h-full flex-col">
-      <header className="flex items-start justify-between px-5 pt-5 pb-4">
+    <div className="relative flex min-h-full flex-col">
+      <header className="short:pt-2 short:pb-2 flex items-start justify-between px-5 pt-5 pb-4">
         <div>
-          <h1 className="display text-[38px]">Discover</h1>
-          <span className="edge hard-sm bg-yellow mt-2 inline-flex -rotate-2 items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-bold">
+          <h1 className="display short:text-[28px] text-[38px]">Discover</h1>
+          <span className="edge hard-sm bg-yellow short:hidden mt-2 inline-flex -rotate-2 items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-bold">
             <Lock aria-hidden className="size-3" strokeWidth={2.75} />
             Only mutual likes
           </span>
@@ -113,10 +118,13 @@ export function DiscoverScreen() {
         </Link>
       </header>
 
-      <section aria-label="Profiles" className="relative mx-4 min-h-0 flex-1">
+      <section
+        aria-label="Profiles"
+        className="relative mx-4 min-h-[260px] flex-1"
+      >
         {showSkeleton ? <CardSkeleton /> : null}
 
-        {deck.status === "error" ? (
+        {showError ? (
           <StateMessage
             icon={CloudOff}
             tone="peach"

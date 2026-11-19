@@ -12,13 +12,13 @@ export function SwipeControls({
   onLike,
 }: SwipeControlsProps) {
   return (
-    <div className="flex items-center justify-center gap-8 px-4 pt-5 pb-4">
+    <div className="short:pt-2 short:pb-2 flex items-center justify-center gap-8 px-4 pt-5 pb-4">
       <button
         type="button"
         onClick={onPass}
         disabled={disabled}
         aria-label="Pass"
-        className="edge hard press bg-paper grid size-16 place-items-center rounded-full disabled:opacity-40"
+        className="edge hard press bg-paper short:size-12 grid size-16 place-items-center rounded-full disabled:opacity-40"
       >
         <X aria-hidden className="size-8" strokeWidth={3} />
       </button>
@@ -27,7 +27,7 @@ export function SwipeControls({
         onClick={onLike}
         disabled={disabled}
         aria-label="Like"
-        className="edge hard press bg-pink grid size-16 place-items-center rounded-full disabled:opacity-40"
+        className="edge hard press bg-pink short:size-12 grid size-16 place-items-center rounded-full disabled:opacity-40"
       >
         <Heart
           aria-hidden

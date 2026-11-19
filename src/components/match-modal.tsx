@@ -97,63 +97,70 @@ export function MatchModal({ match, onClose }: MatchModalProps) {
 
   const { profile } = match;
   return (
+    // The overlay scrolls, so on a short screen (e.g. a landscape phone) the
+    // buttons can always be reached.
     <div
       role="dialog"
       aria-modal="true"
       aria-labelledby="match-title"
       data-testid="match-modal"
-      className="bg-ink/75 fixed inset-0 z-50 grid place-items-center p-6"
+      className="bg-ink/75 fixed inset-0 z-50 overflow-y-auto"
     >
       {reduceMotion ? null : <Confetti />}
-      <motion.div
-        ref={dialogRef}
-        initial={reduceMotion ? false : { scale: 0.8, opacity: 0, rotate: 8 }}
-        animate={{ scale: 1, opacity: 1, rotate: 2 }}
-        transition={{ type: "spring", stiffness: 380, damping: 24 }}
-        className="edge hard-lg bg-pink relative w-full max-w-sm rounded-[28px] p-7 text-center"
-      >
-        <div className="flex items-center justify-center">
-          <div className="edge bg-peach grid size-24 place-items-center rounded-full text-2xl font-extrabold tracking-tight">
-            You
-          </div>
-          <span className="edge bg-paper z-10 -mx-3 grid size-11 place-items-center rounded-full">
-            <Heart
-              aria-hidden
-              className="fill-pink text-pink size-5"
-              strokeWidth={2.5}
+      <div className="short:p-3 grid min-h-full place-items-center p-6">
+        <motion.div
+          ref={dialogRef}
+          initial={reduceMotion ? false : { scale: 0.8, opacity: 0, rotate: 8 }}
+          animate={{ scale: 1, opacity: 1, rotate: 2 }}
+          transition={{ type: "spring", stiffness: 380, damping: 24 }}
+          className="edge hard-lg bg-pink short:p-4 relative w-full max-w-sm rounded-[28px] p-7 text-center"
+        >
+          <div className="flex items-center justify-center">
+            <div className="edge bg-peach short:size-16 short:text-lg grid size-24 place-items-center rounded-full text-2xl font-extrabold tracking-tight">
+              You
+            </div>
+            <span className="edge bg-paper short:size-8 z-10 -mx-3 grid size-11 place-items-center rounded-full">
+              <Heart
+                aria-hidden
+                className="fill-pink text-pink size-5"
+                strokeWidth={2.5}
+              />
+            </span>
+            <Avatar
+              src={profile.photoUrl}
+              name={profile.name}
+              className="short:size-16 size-24"
             />
-          </span>
-          <Avatar
-            src={profile.photoUrl}
-            name={profile.name}
-            className="size-24"
-          />
-        </div>
-        <h2 id="match-title" className="display mt-5 text-[44px]">
-          It&rsquo;s a match!
-        </h2>
-        <p className="mt-3 text-base leading-snug font-medium">
-          You and <strong className="font-extrabold">{profile.name}</strong>{" "}
-          liked each other.
-        </p>
-        <div className="mt-6 grid gap-3">
-          <Link
-            href="/discover/matches"
-            onClick={onClose}
-            className={positiveButton}
+          </div>
+          <h2
+            id="match-title"
+            className="display short:mt-2 short:text-[30px] mt-5 text-[44px]"
           >
-            See matches
-          </Link>
-          <button
-            ref={keepSwipingRef}
-            type="button"
-            onClick={onClose}
-            className={secondaryButton}
-          >
-            Keep swiping
-          </button>
-        </div>
-      </motion.div>
+            It&rsquo;s a match!
+          </h2>
+          <p className="short:mt-1 short:text-sm mt-3 text-base leading-snug font-medium">
+            You and <strong className="font-extrabold">{profile.name}</strong>{" "}
+            liked each other.
+          </p>
+          <div className="short:mt-3 short:gap-2 mt-6 grid gap-3">
+            <Link
+              href="/discover/matches"
+              onClick={onClose}
+              className={positiveButton}
+            >
+              See matches
+            </Link>
+            <button
+              ref={keepSwipingRef}
+              type="button"
+              onClick={onClose}
+              className={secondaryButton}
+            >
+              Keep swiping
+            </button>
+          </div>
+        </motion.div>
+      </div>
     </div>
   );
 }

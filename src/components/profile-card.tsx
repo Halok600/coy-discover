@@ -90,9 +90,10 @@ export function ProfileCard({
           >
             <div className="flex items-center gap-3">
               <div className="min-w-0 flex-1">
-                <h2 className="display truncate text-[26px]">
-                  {profile.name}
-                  <span className="text-muted ml-2 text-[20px] font-bold tracking-normal">
+                {/* Only the name truncates: the age must never be cut off. */}
+                <h2 className="display flex items-baseline gap-2 text-[26px]">
+                  <span className="min-w-0 truncate">{profile.name}</span>
+                  <span className="text-muted shrink-0 text-[20px] font-bold tracking-normal">
                     {profile.age}
                   </span>
                 </h2>

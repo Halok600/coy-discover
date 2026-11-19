@@ -84,6 +84,9 @@ export function SwipeCard({ profile, onSwiped, ref }: SwipeCardProps) {
   return (
     <motion.div
       data-testid="swipe-card"
+      // motion makes tappable elements focusable; the eye and More buttons are
+      // the keyboard path, so the card itself must not be a noisy tab stop.
+      tabIndex={-1}
       drag="x"
       dragMomentum={false}
       style={{ x, rotate }}

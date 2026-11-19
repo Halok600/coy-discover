@@ -43,6 +43,9 @@
     sans-serif;
 }
 
+/* Short screens (landscape phones, tiny phones): used to tighten the chrome. */
+@custom-variant short (@media (max-height: 520px));
+
 /* The signature look: ink outline + hard offset shadow, and the press-down. */
 @utility edge {
   border: 2px solid var(--ink);
