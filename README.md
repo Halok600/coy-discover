@@ -162,18 +162,42 @@ To use a real Postgres instead, copy `.env.example` to `.env.local`, set `DATABA
 ## Tests
 
 ```bash
-npm test             # 80 unit and API tests on in-memory Postgres
-npm run test:e2e     # Playwright, mobile (Pixel 7) and desktop Chrome
+npm test                  # 88 unit and API tests on in-memory Postgres
+npm run test:e2e          # ~220 Playwright tests, mobile (Pixel 7) and desktop Chrome
 npm run lint && npm run typecheck && npm run format:check
 ```
 
 First time only: `npx playwright install chromium`.
 
-- **Unit** (`tests/unit`): matching rules, swipe finality, feed behaviour, viewer lifecycle (including concurrent first requests), idle cleanup, seed data, and the privacy guarantees above.
+- **Unit** (`tests/unit`): matching rules, swipe finality, feed behaviour, viewer lifecycle, idle cleanup, seed data, and the privacy guarantees above. Plus **concurrency** tests (simultaneous swipes, a reset landing mid-swipe, many visitors at once) and **randomized property tests**: hundreds of random swipe sequences, each checked against invariants such as "a match always has a like on both sides".
 - **API** (`tests/api`): the real route handlers called with real `Request` objects: cookies, validation, status codes, error bodies, cron authorization.
-- **End-to-end** (`e2e`): drag and button swipes, arrow keys, snap-back on short drags, no repeats after reload, a full run through the deck to the caught-up state, matches persisting across reloads, restart, and isolation between visitors. The e2e server uses its own throwaway database (`PGLITE_DATA_DIR=.data/e2e`).
+- **End-to-end** (`e2e`), against a production build and a throwaway database:
+  - `discover`: drag and button swipes, arrow keys, the three card states, a full run through the deck, persistence and restart.
+  - `resilience`: rapid-fire clicks, offline mode, injected `500`/`409`/aborted requests, slow responses, a deck that fails to refill, cleared cookies, two tabs, back/forward, two matches arriving together, extreme profile text, blocked images, reduced motion, keyboard-only use, real touch events, and a seeded random "monkey".
+  - `api-hostile`: malformed bodies, SQL-injection strings, huge payloads, hostile query strings and cookies, image-proxy SSRF attempts, security headers, and a privacy crawl across many visitors over real HTTP.
+  - `layout`: ten screen sizes from 320×480 to 1440×900, including a landscape phone.
+  - `a11y`: an axe-core WCAG 2.1 AA audit of every screen state.
 
-CI (`.github/workflows/ci.yml`) runs format, lint, types, unit tests and a production build, plus the e2e suite.
+Every e2e test also fails on any uncaught page error, console error, or server 5xx.
+
+### Run the backend suite on real Postgres
+
+By default the unit and API tests use an embedded database. Point them at a real server and each test file gets its own throwaway database, so the same suites exercise the production driver with truly concurrent connections:
+
+```bash
+TEST_DATABASE_URL=postgres://postgres:password@localhost:5432/postgres npm test
+```
+
+CI does this on every push (the `postgres` job), then also runs `db:migrate` and `db:seed` twice and a load test.
+
+### Load test
+
+```bash
+npm run build && npm start
+BASE_URL=http://localhost:3000 VISITORS=100 CONCURRENCY=25 npm run loadtest
+```
+
+Each virtual visitor likes the whole deck. Beyond latency, it checks that every visitor ends with exactly as many matches as admirers.
 
 ## Deploy (Vercel + Neon)
 

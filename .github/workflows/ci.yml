@@ -44,3 +44,43 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 7
+
+  postgres:
+    name: Real Postgres (backend tests, migrate/seed, load test)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      # The same suites as above, but on the production driver with genuinely
+      # concurrent connections (this is what catches race conditions).
+      - run: npm test
+        env:
+          TEST_DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres
+      # The exact steps the Vercel build runs, twice to prove they are repeatable.
+      - run: npm run db:migrate && npm run db:seed
+      - run: npm run db:migrate && npm run db:seed
+      # Many visitors at once against the real stack; checks correctness too.
+      - run: npm run build
+      - name: Load test
+        run: |
+          npm start &
+          for i in $(seq 1 30); do curl -sf http://localhost:3000/api/health && break; sleep 1; done
+          VISITORS=60 CONCURRENCY=20 npm run loadtest
