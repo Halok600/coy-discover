@@ -113,7 +113,7 @@ export function MatchModal({ match, onClose }: MatchModalProps) {
           initial={reduceMotion ? false : { scale: 0.8, opacity: 0, rotate: 8 }}
           animate={{ scale: 1, opacity: 1, rotate: 2 }}
           transition={{ type: "spring", stiffness: 380, damping: 24 }}
-          className="edge hard-lg bg-pink short:p-4 relative w-full max-w-sm rounded-[28px] p-7 text-center"
+          className="edge hard-lg bg-pink short:p-4 relative w-full max-w-sm min-w-0 rounded-[28px] p-7 text-center"
         >
           <div className="flex items-center justify-center">
             <div className="edge bg-peach short:size-16 short:text-lg grid size-24 place-items-center rounded-full text-2xl font-extrabold tracking-tight">
@@ -142,6 +142,22 @@ export function MatchModal({ match, onClose }: MatchModalProps) {
             You and <strong className="font-extrabold">{profile.name}</strong>{" "}
             liked each other.
           </p>
+          {match.theirNote ? (
+            <figure className="edge hard-sm bg-yellow short:mt-2 short:px-3 short:py-2 mt-4 -rotate-1 rounded-2xl px-4 py-3 text-left">
+              <figcaption className="text-xs font-extrabold tracking-wide uppercase">
+                {profile.name} wrote
+              </figcaption>
+              <blockquote className="mt-1 text-[15px] leading-snug font-semibold [overflow-wrap:anywhere]">
+                {match.theirNote}
+              </blockquote>
+            </figure>
+          ) : null}
+          {match.yourNote ? (
+            <p className="short:mt-2 mt-3 text-sm font-semibold [overflow-wrap:anywhere]">
+              You wrote:{" "}
+              <span className="font-medium">{`\u201C${match.yourNote}\u201D`}</span>
+            </p>
+          ) : null}
           <div className="short:mt-3 short:gap-2 mt-6 grid gap-3">
             <Link
               href="/discover/matches"

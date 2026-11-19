@@ -31,6 +31,8 @@ export function useDeck(onMatch: (match: MatchDto) => void) {
   const [refillFailed, setRefillFailed] = useState(false);
 
   const seen = useRef(new Set<string>());
+  // Notes that were sent but not (yet) saved, so a retry can restore them.
+  const drafts = useRef(new Map<string, string>());
   const fetching = useRef(false);
   const retryTimer = useRef<ReturnType<typeof setTimeout> | undefined>(
     undefined,
@@ -92,13 +94,15 @@ export function useDeck(onMatch: (match: MatchDto) => void) {
   }, [status, hasMore, queue.length, load]);
 
   const swipe = useCallback(
-    (profile: PublicProfile, action: SwipeAction) => {
+    (profile: PublicProfile, action: SwipeAction, note?: string) => {
       seen.current.add(profile.id);
+      if (note) drafts.current.set(profile.id, note);
       setQueue((current) => current.filter((p) => p.id !== profile.id));
 
       api
-        .swipe(profile.id, action)
+        .swipe(profile.id, action, note)
         .then((result) => {
+          drafts.current.delete(profile.id);
           if (result.matched) {
             onMatchRef.current(result.match);
             void queryClient.invalidateQueries({ queryKey: MATCHES_KEY });
@@ -107,6 +111,7 @@ export function useDeck(onMatch: (match: MatchDto) => void) {
         .catch((error: unknown) => {
           // Already recorded on the server: nothing to undo.
           if (error instanceof ApiError && error.code === "ALREADY_SWIPED") {
+            drafts.current.delete(profile.id);
             return;
           }
           seen.current.delete(profile.id);
@@ -126,6 +131,7 @@ export function useDeck(onMatch: (match: MatchDto) => void) {
     }
     clearTimeout(retryTimer.current);
     seen.current.clear();
+    drafts.current.clear();
     setQueue([]);
     setHasMore(true);
     setRefillFailed(false);
@@ -142,6 +148,12 @@ export function useDeck(onMatch: (match: MatchDto) => void) {
 
   const dismissNotice = useCallback(() => setNotice(null), []);
 
+  /** The note typed for a profile whose swipe failed to save, if any. */
+  const draftFor = useCallback(
+    (profileId: string) => drafts.current.get(profileId) ?? "",
+    [],
+  );
+
   return {
     queue,
     hasMore,
@@ -152,5 +164,6 @@ export function useDeck(onMatch: (match: MatchDto) => void) {
     startOver,
     retry,
     dismissNotice,
+    draftFor,
   };
 }

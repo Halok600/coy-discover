@@ -45,10 +45,10 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 
 export const api = {
   feed: (limit: number) => request<FeedResponse>(`/feed?limit=${limit}`),
-  swipe: (profileId: string, action: SwipeAction) =>
+  swipe: (profileId: string, action: SwipeAction, note?: string) =>
     request<SwipeResponse>("/swipe", {
       method: "POST",
-      body: JSON.stringify({ profileId, action }),
+      body: JSON.stringify({ profileId, action, ...(note ? { note } : {}) }),
     }),
   matches: () => request<MatchesResponse>("/matches"),
   reset: () => request<{ ok: true }>("/api/demo/reset", { method: "POST" }),

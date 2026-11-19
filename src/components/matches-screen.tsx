@@ -74,38 +74,45 @@ export function MatchesScreen() {
 
         {data && data.matches.length > 0 ? (
           <ul className="space-y-4" aria-label="Your matches">
-            {data.matches.map(({ id, matchedAt, profile }, index) => (
-              <li
-                key={id}
-                data-testid="match-item"
-                className={`edge hard flex items-center gap-4 rounded-[22px] p-3 ${PASTELS[index % PASTELS.length]}`}
-              >
-                <Avatar
-                  src={profile.photoUrl}
-                  name={profile.name}
-                  className="size-16"
-                />
-                <div className="min-w-0 flex-1">
-                  <h2 className="truncate text-xl leading-tight font-extrabold tracking-tight">
-                    {profile.name}
-                    <span className="ml-1.5 font-bold opacity-60">
-                      {profile.age}
-                    </span>
-                  </h2>
-                  <p className="flex items-center gap-1 truncate text-sm font-semibold">
-                    <MapPin
-                      aria-hidden
-                      className="size-3.5 shrink-0"
-                      strokeWidth={2.5}
-                    />
-                    {profile.location}
-                  </p>
-                  <p className="edge bg-paper mt-1.5 inline-block rounded-full px-2 py-px text-xs font-bold">
-                    Matched {timeAgo(matchedAt)}
-                  </p>
-                </div>
-              </li>
-            ))}
+            {data.matches.map(
+              ({ id, matchedAt, profile, theirNote }, index) => (
+                <li
+                  key={id}
+                  data-testid="match-item"
+                  className={`edge hard flex items-center gap-4 rounded-[22px] p-3 ${PASTELS[index % PASTELS.length]}`}
+                >
+                  <Avatar
+                    src={profile.photoUrl}
+                    name={profile.name}
+                    className="size-16"
+                  />
+                  <div className="min-w-0 flex-1">
+                    <h2 className="truncate text-xl leading-tight font-extrabold tracking-tight">
+                      {profile.name}
+                      <span className="ml-1.5 font-bold opacity-60">
+                        {profile.age}
+                      </span>
+                    </h2>
+                    <p className="flex items-center gap-1 truncate text-sm font-semibold">
+                      <MapPin
+                        aria-hidden
+                        className="size-3.5 shrink-0"
+                        strokeWidth={2.5}
+                      />
+                      {profile.location}
+                    </p>
+                    {theirNote ? (
+                      <p className="mt-1 line-clamp-2 text-sm font-semibold [overflow-wrap:anywhere] italic">
+                        {`\u201C${theirNote}\u201D`}
+                      </p>
+                    ) : null}
+                    <p className="edge bg-paper mt-1.5 inline-block rounded-full px-2 py-px text-xs font-bold">
+                      Matched {timeAgo(matchedAt)}
+                    </p>
+                  </div>
+                </li>
+              ),
+            )}
           </ul>
         ) : null}
       </div>

@@ -24,12 +24,12 @@ const VELOCITY_THRESHOLD = 500;
 
 export type SwipeCardHandle = {
   /** Animate the card off-screen and report the swipe, as a drag would. */
-  fling: (action: SwipeAction) => void;
+  fling: (action: SwipeAction, note?: string) => void;
 };
 
 type SwipeCardProps = {
   profile: PublicProfile;
-  onSwiped: (action: SwipeAction) => void;
+  onSwiped: (action: SwipeAction, note?: string) => void;
   ref?: Ref<SwipeCardHandle>;
 };
 
@@ -62,7 +62,7 @@ export function SwipeCard({ profile, onSwiped, ref }: SwipeCardProps) {
   }, []);
 
   const fling = useCallback(
-    async (action: SwipeAction) => {
+    async (action: SwipeAction, note?: string) => {
       if (leaving.current) return; // a card can only be swiped once
       leaving.current = true;
       const distance = window.innerWidth + 260;
@@ -72,14 +72,16 @@ export function SwipeCard({ profile, onSwiped, ref }: SwipeCardProps) {
         reduceMotion ? { duration: 0.1 } : { duration: 0.28, ease: "easeIn" },
       );
       // If the deck was reset mid-animation this card is gone: don't report it.
-      if (mounted.current) onSwiped(action);
+      if (mounted.current) onSwiped(action, note);
     },
     [onSwiped, reduceMotion, x],
   );
 
-  useImperativeHandle(ref, () => ({ fling: (action) => void fling(action) }), [
-    fling,
-  ]);
+  useImperativeHandle(
+    ref,
+    () => ({ fling: (action, note) => void fling(action, note) }),
+    [fling],
+  );
 
   return (
     <motion.div

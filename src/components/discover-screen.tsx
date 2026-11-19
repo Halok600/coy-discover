@@ -11,6 +11,7 @@ import {
   secondaryButton,
   StateMessage,
 } from "@/components/state-message";
+import { NoteSheet } from "@/components/note-sheet";
 import { SwipeCard, type SwipeCardHandle } from "@/components/swipe-card";
 import { SwipeControls } from "@/components/swipe-controls";
 import { Toast } from "@/components/toast";
@@ -22,6 +23,8 @@ export function DiscoverScreen() {
   const [pendingMatches, setPendingMatches] = useState<MatchDto[]>([]);
   const [announcement, setAnnouncement] = useState("");
   const [restarting, setRestarting] = useState(false);
+  const [noteOpen, setNoteOpen] = useState(false);
+  const [noteText, setNoteText] = useState("");
   const cardRef = useRef<SwipeCardHandle>(null);
 
   const handleMatch = useCallback(
@@ -38,11 +41,14 @@ export function DiscoverScreen() {
 
   const { swipe } = deck;
   const handleSwiped = useCallback(
-    (action: SwipeAction) => {
+    (action: SwipeAction, note?: string) => {
       if (!top) return;
-      swipe(top, action);
+      swipe(top, action, note);
+      setNoteText("");
       setAnnouncement(
-        action === "like" ? `Liked ${top.name}` : `Passed ${top.name}`,
+        action === "like"
+          ? `Liked ${top.name}${note ? " with a note" : ""}`
+          : `Passed ${top.name}`,
       );
     },
     [top, swipe],
@@ -51,7 +57,15 @@ export function DiscoverScreen() {
   // Desktop: arrow keys swipe the top card.
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
-      if (modalOpen || event.metaKey || event.ctrlKey || event.altKey) return;
+      if (
+        modalOpen ||
+        noteOpen ||
+        event.metaKey ||
+        event.ctrlKey ||
+        event.altKey
+      ) {
+        return;
+      }
       // Don't hijack arrow keys while the user is typing somewhere.
       if (
         event.target instanceof Element &&
@@ -69,7 +83,7 @@ export function DiscoverScreen() {
     }
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [modalOpen]);
+  }, [modalOpen, noteOpen]);
 
   async function handleStartOver() {
     setRestarting(true);
@@ -186,9 +200,13 @@ export function DiscoverScreen() {
       </section>
 
       <SwipeControls
-        disabled={!top || modalOpen}
+        disabled={!top || modalOpen || noteOpen}
         onPass={() => cardRef.current?.fling("pass")}
         onLike={() => cardRef.current?.fling("like")}
+        onNote={() => {
+          if (top) setNoteText((current) => current || deck.draftFor(top.id));
+          setNoteOpen(true);
+        }}
       />
       <p className="text-muted hidden pb-3 text-center text-xs md:block">
         Tip: use the &larr; and &rarr; arrow keys
@@ -198,6 +216,19 @@ export function DiscoverScreen() {
       <p aria-live="polite" className="sr-only">
         {announcement}
       </p>
+
+      {noteOpen && top && !modalOpen ? (
+        <NoteSheet
+          name={top.name}
+          value={noteText}
+          onChange={setNoteText}
+          onCancel={() => setNoteOpen(false)}
+          onSubmit={() => {
+            setNoteOpen(false);
+            cardRef.current?.fling("like", noteText);
+          }}
+        />
+      ) : null}
 
       {modalOpen ? (
         <MatchModal
