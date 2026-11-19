@@ -2,6 +2,7 @@ import { and, eq, or } from "drizzle-orm";
 import { expect } from "vitest";
 import type { Db } from "@/server/db/client";
 import { matches, swipes } from "@/server/db/schema";
+import { listMatches } from "@/server/services/matches";
 import { admirersOf } from "./db";
 
 /**
@@ -39,4 +40,18 @@ export async function assertInvariants(db: Db, viewerId: string) {
 
   const expected = [...liked].filter((id) => admirers.has(id)).sort();
   expect(matchedWith.sort()).toEqual(expected);
+
+  // Sealed notes: whatever /matches returns is exactly what the two likes
+  // stored, and nothing else.
+  const noteOf = async (from: string, to: string) => {
+    const [row] = await db
+      .select({ note: swipes.note })
+      .from(swipes)
+      .where(and(eq(swipes.swiperId, from), eq(swipes.targetId, to)));
+    return row?.note ?? null;
+  };
+  for (const match of (await listMatches(db, viewerId)).matches) {
+    expect(match.yourNote).toBe(await noteOf(viewerId, match.profile.id));
+    expect(match.theirNote).toBe(await noteOf(match.profile.id, viewerId));
+  }
 }

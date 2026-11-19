@@ -564,14 +564,20 @@ test.describe("keyboard only", () => {
       });
 
     const order: (string | undefined)[] = [];
-    for (let i = 0; i < 7; i++) {
+    for (let i = 0; i < 8; i++) {
       await page.keyboard.press("Tab");
       order.push(await label());
     }
     expect(order[0]).toMatch(/^Matches/);
     expect(order[1]).toBe("Hide details to see the photo");
     expect(order[2]).toMatch(/^More about/);
-    expect(order.slice(3)).toEqual(["Pass", "Like", "Home", "Discover"]);
+    expect(order.slice(3)).toEqual([
+      "Pass",
+      "Write a note",
+      "Like",
+      "Home",
+      "Discover",
+    ]);
 
     // Focus is visible on the controls.
     await page.keyboard.press("Shift+Tab"); // Home

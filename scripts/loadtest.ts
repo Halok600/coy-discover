@@ -67,7 +67,11 @@ async function visitor(index: number) {
       const swipe = await timed("POST /swipe", `${BASE_URL}/swipe`, {
         method: "POST",
         headers,
-        body: JSON.stringify({ profileId: id, action: "like" }),
+        body: JSON.stringify({
+          profileId: id,
+          action: "like",
+          note: `hello from visitor ${index}`,
+        }),
       });
       if (swipe.response.status !== 200) {
         problems.push(
@@ -83,8 +87,19 @@ async function visitor(index: number) {
 
   const matches = JSON.parse(
     (await timed("GET /matches", `${BASE_URL}/matches`, { headers })).body,
-  ) as { matches: unknown[] };
+  ) as {
+    matches: { theirNote: string | null; yourNote: string | null }[];
+  };
 
+  for (const match of matches.matches) {
+    if (!match.theirNote)
+      problems.push(`visitor ${index}: a match without their note`);
+    if (match.yourNote !== `hello from visitor ${index}`) {
+      problems.push(
+        `visitor ${index}: wrong note echoed back: ${match.yourNote}`,
+      );
+    }
+  }
   if (swiped !== 32)
     problems.push(`visitor ${index}: swiped ${swiped}, expected 32`);
   if (matched !== admirerCount(cookie)) {

@@ -15,6 +15,7 @@ import {
   admirersOf,
   clearViewers,
   createTestDb,
+  memberIds,
   nonAdmirerOf,
 } from "../helpers/db";
 
@@ -412,5 +413,96 @@ describe("visitor isolation over HTTP", () => {
       await listMatches(request("/api/matches", { cookie: b }))
     ).json();
     expect(bMatches.matches).toEqual([]);
+  });
+});
+
+describe("sealed notes over HTTP", () => {
+  const post = (cookie: string, body: unknown) =>
+    swipe(request("/api/swipe", { method: "POST", cookie, body }));
+
+  it.each([
+    ["a note on a pass", { action: "pass", note: "psst" }],
+    ["a note over 140 characters", { action: "like", note: "x".repeat(141) }],
+    ["141 emoji", { action: "like", note: "\u{1F600}".repeat(141) }],
+    ["a 100KB note", { action: "like", note: "y".repeat(100_000) }],
+    ["a numeric note", { action: "like", note: 5 }],
+    ["an object note", { action: "like", note: { a: 1 } }],
+    ["an array note", { action: "like", note: ["a"] }],
+    ["a null note", { action: "like", note: null }],
+  ])("400s for %s and records nothing", async (_label, extra) => {
+    const id = await newVisitor();
+    const stranger = await nonAdmirerOf(db, id);
+
+    const response = await post(id, { profileId: stranger, ...extra });
+    expect(response.status).toBe(400);
+    expect((await response.json()).error.code).toBe("VALIDATION_ERROR");
+
+    // Nothing was recorded: the profile can still be swiped.
+    const retry = await post(id, { profileId: stranger, action: "pass" });
+    expect(retry.status).toBe(200);
+  });
+
+  it("accepts 140 emoji, a blank note and an ordinary note", async () => {
+    const id = await newVisitor();
+    const admirers = new Set(await admirersOf(db, id));
+    const strangers = (await memberIds(db)).filter((m) => !admirers.has(m));
+
+    for (const [index, note] of [
+      "\u{1F600}".repeat(140),
+      "   ",
+      "Coffee after the fest?",
+    ].entries()) {
+      const response = await post(id, {
+        profileId: strangers[index],
+        action: "like",
+        note,
+      });
+      expect(response.status).toBe(200);
+      expect(await response.json()).toEqual({ matched: false });
+    }
+  });
+
+  it("answers a like-with-note on a non-match exactly like one without", async () => {
+    const id = await newVisitor();
+    const admirers = new Set(await admirersOf(db, id));
+    const [a, b] = (await memberIds(db)).filter((m) => !admirers.has(m));
+
+    const withNote = await post(id, {
+      profileId: a,
+      action: "like",
+      note: "hello",
+    });
+    const without = await post(id, { profileId: b, action: "like" });
+    expect(await withNote.text()).toBe(await without.text());
+  });
+
+  it("returns both notes on a match, and again from GET /matches", async () => {
+    const id = await newVisitor();
+    const [admirer] = await admirersOf(db, id);
+
+    const response = await post(id, {
+      profileId: admirer,
+      action: "like",
+      note: "  Hello   there ",
+    });
+    const body = await response.json();
+    expect(body.matched).toBe(true);
+    expect(body.match.yourNote).toBe("Hello there");
+    expect(typeof body.match.theirNote).toBe("string");
+    expect(body.match.theirNote.length).toBeGreaterThan(0);
+
+    const listed = await (
+      await listMatches(request("/api/matches", { cookie: id }))
+    ).json();
+    expect(listed.matches[0].yourNote).toBe("Hello there");
+    expect(listed.matches[0].theirNote).toBe(body.match.theirNote);
+  });
+
+  it("never puts notes in the feed", async () => {
+    const id = await newVisitor();
+    const text = await (
+      await feed(request("/api/feed?limit=30", { cookie: id }))
+    ).text();
+    expect(text).not.toMatch(/note/i);
   });
 });

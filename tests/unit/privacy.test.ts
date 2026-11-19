@@ -63,6 +63,8 @@ describe("privacy: never reveal who liked the viewer unless it is mutual", () =>
           "id",
           "matchedAt",
           "profile",
+          "theirNote",
+          "yourNote",
         ]);
         expect(Object.keys(match.profile).sort()).toEqual(PUBLIC_PROFILE_KEYS);
       }

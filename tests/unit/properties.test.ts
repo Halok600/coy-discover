@@ -3,6 +3,7 @@ import type { Db } from "@/server/db/client";
 import { getFeed } from "@/server/services/feed";
 import { listMatches } from "@/server/services/matches";
 import { recordSwipe } from "@/server/services/swipe";
+import { SEED_PROFILES } from "@/server/seed/profiles";
 import { ensureViewer } from "@/server/services/viewer";
 import {
   admirersOf,
@@ -11,6 +12,10 @@ import {
   testBackend,
 } from "../helpers/db";
 import { assertInvariants } from "../helpers/invariants";
+
+/** The note a seeded member sends with their like. */
+const seededNoteFor = (id: string) =>
+  SEED_PROFILES[Number.parseInt(id.slice(-12), 16) - 1].note;
 
 /** Small deterministic PRNG so any failure reproduces from its seed. */
 function mulberry32(seed: number) {
@@ -56,7 +61,11 @@ describe(`randomized swipe sequences (${testBackend}, ${RUNS} runs)`, () => {
 
       for (const id of order) {
         const action = rand() < 0.5 ? "like" : "pass";
-        const result = await recordSwipe(db, viewer, id, action);
+        const note =
+          action === "like" && rand() < 0.5
+            ? `note ${seed}-${order.indexOf(id)}`
+            : null;
+        const result = await recordSwipe(db, viewer, id, action, note);
         swiped.add(id);
 
         const shouldMatch = action === "like" && admirers.has(id);
@@ -65,6 +74,13 @@ describe(`randomized swipe sequences (${testBackend}, ${RUNS} runs)`, () => {
 
         // The answer to every single swipe is exactly right.
         expect(result.matched, `seed ${seed}`).toBe(shouldMatch);
+        if (result.matched) {
+          // Both notes come back, and only inside a match.
+          expect(result.match.yourNote, `seed ${seed}`).toBe(note);
+          expect(result.match.theirNote, `seed ${seed}`).toBe(
+            seededNoteFor(id),
+          );
+        }
         if (!result.matched) expect(result).toEqual({ matched: false });
       }
 
