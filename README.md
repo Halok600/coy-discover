@@ -10,13 +10,15 @@ Swipe right to like, left to pass. A match happens **only when both people liked
   <img src="docs/screenshots/discover.png" alt="Photo first, with a slim info strip" width="180" />
   <img src="docs/screenshots/details.png" alt="More expands the bio and interests" width="180" />
   <img src="docs/screenshots/photo-only.png" alt="Tap the photo to hide the info" width="180" />
-  <img src="docs/screenshots/match.png" alt="The It's a match dialog" width="180" />
+  <img src="docs/screenshots/note-sheet.png" alt="Writing a sealed note with a like" width="180" />
+  <img src="docs/screenshots/match.png" alt="The match dialog shows their note and yours" width="180" />
   <img src="docs/screenshots/matches.png" alt="The Matches list" width="180" />
 </p>
 
 ## Features
 
 - **Photo-first cards**: each card shows the face with only a slim name, age and city strip. **Tap the photo** and all the info disappears so you see the whole picture (tap again to bring it back); **More** expands the bio and interests. An eye button does the same toggle for keyboard and screen-reader users.
+- **Sealed notes**: attach a short note (up to 140 characters) to a like. It is revealed **only if it becomes a match**: the match dialog and the Matches list show the note they sent you and the one you sent them. If it never becomes a match, the note stays unreadable forever. Seeded admirers write you notes too, so a demo has something to read.
 - **Swipe deck**: one card at a time, drag gestures on touch and mouse, **Like / Pass buttons** and **← / → keys** on desktop. The card follows your finger, tilts, and shows LIKE / NOPE stamps; release past the threshold (or flick) and it flies off, otherwise it springs back.
 - **Never repeats**: a swiped profile never appears again, even across reloads or while its swipe is still in flight.
 - **It's a match!** dialog on a mutual like (focus-trapped, `Esc` to close, confetti unless you prefer reduced motion) and a **Matches** view listing everyone you matched with.
@@ -29,16 +31,18 @@ Swipe right to like, left to pass. A match happens **only when both people liked
 
 The brief says: _never reveal who has liked the user unless it is mutual_. Each way a build could leak that, and what stops it here:
 
-| Leak                                              | What prevents it                                                                                                                                    | Enforced by                                          |
-| ------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
-| A `likedYou` flag or raw DB rows in `GET /feed`   | Every response is built field by field in one serializer (`toPublicProfile`); a new column can't leak by accident                                   | `privacy.test.ts` asserts the exact key set          |
-| Deck order that puts admirers first               | The deck is ordered by `md5(viewer_id \|\| profile_id)`: stable per visitor, unrelated to likes                                                     | `privacy.test.ts` recomputes the order independently |
-| `POST /swipe` answering differently for admirers  | The reciprocal lookup runs for **every** swipe; a pass on an admirer returns byte-for-byte the same `{ "matched": false }` as a pass on anyone else | `privacy.test.ts`, `routes.test.ts`                  |
-| Probing by re-swiping                             | Swipes are final: the `(swiper, target)` primary key makes a second swipe a `409`, so an outcome can't be re-rolled                                 | `swipe.test.ts`, e2e                                 |
-| A "who liked me" endpoint, count, or badge        | None exists. The only relationship the API ever exposes is a mutual match, and the header badge counts matches only                                 | Code review + e2e                                    |
-| Filtering in the browser                          | All filtering happens in SQL on the server                                                                                                          | Architecture                                         |
-| Forged identity cookie acting as a seeded profile | The viewer cookie is validated as a UUID and refused if it names a seeded member                                                                    | `routes.test.ts`                                     |
-| One visitor seeing another's data                 | Every query is scoped to the visitor's id                                                                                                           | `privacy.test.ts`, e2e                               |
+| Leak                                              | What prevents it                                                                                                                                                                                             | Enforced by                                                   |
+| ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------- |
+| A `likedYou` flag or raw DB rows in `GET /feed`   | Every response is built field by field in one serializer (`toPublicProfile`); a new column can't leak by accident                                                                                            | `privacy.test.ts` asserts the exact key set                   |
+| Deck order that puts admirers first               | The deck is ordered by `md5(viewer_id \|\| profile_id)`: stable per visitor, unrelated to likes                                                                                                              | `privacy.test.ts` recomputes the order independently          |
+| `POST /swipe` answering differently for admirers  | The reciprocal lookup runs for **every** swipe; a pass on an admirer returns byte-for-byte the same `{ "matched": false }` as a pass on anyone else                                                          | `privacy.test.ts`, `routes.test.ts`                           |
+| Probing by re-swiping                             | Swipes are final: the `(swiper, target)` primary key makes a second swipe a `409`, so an outcome can't be re-rolled                                                                                          | `swipe.test.ts`, e2e                                          |
+| A "who liked me" endpoint, count, or badge        | None exists. The only relationship the API ever exposes is a mutual match, and the header badge counts matches only                                                                                          | Code review + e2e                                             |
+| Filtering in the browser                          | All filtering happens in SQL on the server                                                                                                                                                                   | Architecture                                                  |
+| Forged identity cookie acting as a seeded profile | The viewer cookie is validated as a UUID and refused if it names a seeded member                                                                                                                             | `routes.test.ts`                                              |
+| One visitor seeing another's data                 | Every query is scoped to the visitor's id                                                                                                                                                                    | `privacy.test.ts`, e2e                                        |
+| A sealed note leaking before a match              | Notes are read only through a match row, which exists only for a mutual like. A non-match answer is still exactly `{ "matched": false }`, with or without a note, and `/feed` never carries notes            | `notes.test.ts`, `routes.test.ts`, e2e (scans every response) |
+| Notes used to probe or smuggle data               | Only a like can carry a note (API validation **and** a database `CHECK`); notes are trimmed, stripped of control and bidi characters, capped at 140 characters (also a `CHECK`), and always rendered as text | `notes.test.ts`, e2e (hostile text)                           |
 
 ## How it works
 
@@ -71,7 +75,8 @@ flowchart LR
 
 ```
 users    id, kind ('member' | 'viewer'), name, age, photo_url, bio, location, interests[], created_at
-swipes   (swiper_id, target_id) PRIMARY KEY, action ('like' | 'pass'), created_at
+swipes   (swiper_id, target_id) PRIMARY KEY, action ('like' | 'pass'), note, created_at
+         CHECK (note IS NULL OR action = 'like'), CHECK (char_length(note) <= 140)
 matches  id, user_a, user_b  UNIQUE, CHECK (user_a < user_b), created_at
 ```
 
@@ -108,8 +113,10 @@ Profiles the visitor has not swiped on yet (`limit` 1 to 30).
 POST /swipe
 Content-Type: application/json
 
-{ "profileId": "00000000-0000-4000-8000-00000000001a", "action": "like" }
+{ "profileId": "00000000-0000-4000-8000-00000000001a", "action": "like", "note": "Coffee after the fest?" }
 ```
+
+`note` is optional, only valid with `"like"`, and at most 140 characters.
 
 Not a match (a pass, or a like nobody returned), always this exact body:
 
@@ -125,17 +132,31 @@ A mutual like:
   "match": {
     "id": "5b0c…",
     "matchedAt": "2026-11-18T10:21:04.512Z",
-    "profile": { "id": "…", "name": "Mahi Rathore", "age": 21, "…": "…" }
+    "profile": { "id": "…", "name": "Mahi Rathore", "age": 21, "…": "…" },
+    "theirNote": "Sunrise run, then brownies on me. Deal?",
+    "yourNote": "Coffee after the fest?"
   }
 }
 ```
 
-Errors: `400 VALIDATION_ERROR` (bad body), `404 PROFILE_NOT_FOUND`, `409 ALREADY_SWIPED`.
+Notes appear **only** inside a `match`, never in a non-match answer.
+
+Errors: `400 VALIDATION_ERROR` (bad body, a note on a pass, a note over 140 characters), `404 PROFILE_NOT_FOUND`, `409 ALREADY_SWIPED`.
 
 ### `GET /matches`
 
 ```json
-{ "matches": [{ "id": "5b0c…", "matchedAt": "…", "profile": { "…": "…" } }] }
+{
+  "matches": [
+    {
+      "id": "5b0c…",
+      "matchedAt": "…",
+      "profile": { "…": "…" },
+      "theirNote": "…",
+      "yourNote": "…"
+    }
+  ]
+}
 ```
 
 ### Other routes
@@ -162,8 +183,8 @@ To use a real Postgres instead, copy `.env.example` to `.env.local`, set `DATABA
 ## Tests
 
 ```bash
-npm test                  # 88 unit and API tests on in-memory Postgres
-npm run test:e2e          # ~220 Playwright tests, mobile (Pixel 7) and desktop Chrome
+npm test                  # 122 unit and API tests on in-memory Postgres
+npm run test:e2e          # ~260 Playwright tests, mobile (Pixel 7) and desktop Chrome
 npm run lint && npm run typecheck && npm run format:check
 ```
 
@@ -175,6 +196,7 @@ First time only: `npx playwright install chromium`.
   - `discover`: drag and button swipes, arrow keys, the three card states, a full run through the deck, persistence and restart.
   - `resilience`: rapid-fire clicks, offline mode, injected `500`/`409`/aborted requests, slow responses, a deck that fails to refill, cleared cookies, two tabs, back/forward, two matches arriving together, extreme profile text, blocked images, reduced motion, keyboard-only use, real touch events, and a seeded random "monkey".
   - `api-hostile`: malformed bodies, SQL-injection strings, huge payloads, hostile query strings and cookies, image-proxy SSRF attempts, security headers, and a privacy crawl across many visitors over real HTTP.
+  - `notes`: the note sheet (validation, clamping, focus trap, failed saves keep your draft), both notes revealed on a match, a one-sided note never appearing in any response or page, hostile and extra-long note text on small screens, and an axe audit of the new screens.
   - `layout`: ten screen sizes from 320×480 to 1440×900, including a landscape phone.
   - `a11y`: an axe-core WCAG 2.1 AA audit of every screen state.
 
@@ -235,6 +257,7 @@ scripts/               db:migrate, db:seed, README screenshots
 - **No rate limiting.** A production build would limit `/swipe` per user to slow down scripted probing (Vercel WAF or a token bucket in Redis).
 - **Photos are hotlinked placeholders** from [pravatar.cc](https://pravatar.cc), served through the Next.js image optimizer. Names, bios and people in the seed data are fictional; a failed image falls back to initials.
 - **CSP allows inline scripts**, because Next.js injects inline bootstrap code. Nonce-based CSP would tighten it.
+- **Notes are plain text at rest.** A production version would encrypt them (Coy hashes and encrypts contact details) and add reporting and moderation before real users could send each other free text.
 - **Swipes are final by design** (it's what stops probing), so there is no undo.
 
 ## License

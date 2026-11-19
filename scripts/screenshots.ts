@@ -58,13 +58,21 @@ async function main() {
   await page.mouse.up();
   await page.waitForTimeout(700);
 
-  // 3. Like until the first mutual match.
+  // 3. Like with a sealed note until the first mutual match. The first note
+  //    sheet is captured on the way.
   for (let i = 0; i < 40; i++) {
+    await page.getByRole("button", { name: "Write a note" }).click();
+    const sheet = page.getByTestId("note-sheet");
+    await sheet.getByRole("textbox").fill("Coffee after the fest? \u2615");
+    if (i === 0) {
+      await page.waitForTimeout(400);
+      await page.screenshot({ path: `${OUT}/note-sheet.png` });
+    }
     const [response] = await Promise.all([
       page.waitForResponse(
         (r) => r.url().endsWith("/swipe") && r.request().method() === "POST",
       ),
-      page.getByRole("button", { name: "Like" }).click(),
+      sheet.getByRole("button", { name: "Like with note" }).click(),
     ]);
     if (((await response.json()) as { matched: boolean }).matched) break;
   }
