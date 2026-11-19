@@ -6,6 +6,8 @@ export type SeedProfile = {
   location: string;
   bio: string;
   interests: string[];
+  /** The sealed note this person sends with their like (max 140 chars). */
+  note: string;
 };
 
 /**
@@ -29,6 +31,7 @@ export const SEED_PROFILES: readonly SeedProfile[] = [
     location: "Delhi University, Delhi",
     bio: "Literature major who reviews every cafe she visits. Ask me about my unreasonably long reading list.",
     interests: ["Books", "Coffee", "Poetry", "Theatre"],
+    note: "I've been meaning to ask about your favourite book. Coffee soon? ☕",
   },
   {
     name: "Rohan Mehta",
@@ -37,6 +40,7 @@ export const SEED_PROFILES: readonly SeedProfile[] = [
     location: "IIT Bombay, Mumbai",
     bio: "Builds robots by day, plays badly tuned guitar by night. Looking for someone to critique my playlists.",
     interests: ["Robotics", "Guitar", "Football", "Startups"],
+    note: "Your playlist taste seems dangerous. Let me critique it over chai?",
   },
   {
     name: "Ishita Rao",
@@ -45,6 +49,7 @@ export const SEED_PROFILES: readonly SeedProfile[] = [
     location: "Christ University, Bengaluru",
     bio: "Psychology student and weekend trekker. I will absolutely overpack for a one-night trip.",
     interests: ["Trekking", "Psychology", "Photography", "Podcasts"],
+    note: "Trek this weekend? I promise to overpack exactly one extra jacket.",
   },
   {
     name: "Kabir Singh",
@@ -53,6 +58,7 @@ export const SEED_PROFILES: readonly SeedProfile[] = [
     location: "Chandigarh",
     bio: "Product designer who is mildly obsessed with typography. Best dal makhani in the city is my hill to die on.",
     interests: ["Design", "Cooking", "Cycling", "Fonts"],
+    note: "I'd design you a poster of the best dal makhani in town. Deal?",
   },
   {
     name: "Meera Iyer",
@@ -61,6 +67,7 @@ export const SEED_PROFILES: readonly SeedProfile[] = [
     location: "SRM Institute, Chennai",
     bio: "Bharatanatyam since I was six, filter coffee since I was twelve. Always up for a beach walk.",
     interests: ["Dance", "Filter coffee", "Beaches", "Carnatic music"],
+    note: "Filter coffee and a beach walk. Your move. ☕🌊",
   },
   {
     name: "Arjun Nair",
@@ -69,6 +76,7 @@ export const SEED_PROFILES: readonly SeedProfile[] = [
     location: "Kochi",
     bio: "Marine biology grad turned data analyst. Will happily explain why octopuses are geniuses.",
     interests: ["Diving", "Data", "Football", "Seafood"],
+    note: "Did you know octopuses have three hearts? Also, hi.",
   },
   {
     name: "Tara Kapoor",
@@ -77,6 +85,7 @@ export const SEED_PROFILES: readonly SeedProfile[] = [
     location: "Symbiosis, Pune",
     bio: "Journalism student chasing stories and decent chai. Strong opinions about movie sequels.",
     interests: ["Writing", "Cinema", "Chai", "Travel"],
+    note: "Strong opinions about sequels. Let's argue over chai.",
   },
   {
     name: "Vihaan Reddy",
@@ -85,6 +94,7 @@ export const SEED_PROFILES: readonly SeedProfile[] = [
     location: "Hyderabad",
     bio: "Backend engineer who unwinds on the badminton court. Biryani debates welcome, but I am right.",
     interests: ["Badminton", "Coding", "Biryani", "Gaming"],
+    note: "Badminton, then biryani? I'll even let you win a game.",
   },
   {
     name: "Saanvi Gupta",
@@ -93,6 +103,7 @@ export const SEED_PROFILES: readonly SeedProfile[] = [
     location: "Lady Shri Ram College, Delhi",
     bio: "First-year economics student who joined five societies and regrets nothing. Debate team, mostly.",
     interests: ["Debating", "Economics", "Thrifting", "Indie music"],
+    note: "Fellow overcommitter. Which society are we skipping to meet?",
   },
   {
     name: "Aarav Joshi",
@@ -101,6 +112,7 @@ export const SEED_PROFILES: readonly SeedProfile[] = [
     location: "BITS Pilani, Rajasthan",
     bio: "Campus DJ and part-time chess hustler. Ask me for a song recommendation and then regret it.",
     interests: ["DJing", "Chess", "Electronic music", "Memes"],
+    note: "I'll DJ the first song of whatever we do next. Brace yourself.",
   },
   {
     name: "Diya Bansal",
@@ -109,6 +121,7 @@ export const SEED_PROFILES: readonly SeedProfile[] = [
     location: "Jaipur",
     bio: "Architect in training who sketches every building she walks past. Terrible at directions, great at planning.",
     interests: ["Architecture", "Sketching", "Heritage walks", "Chai"],
+    note: "I'd sketch the cafe we meet at. Terrible at directions, great at plans.",
   },
   {
     name: "Krish Malhotra",
@@ -117,6 +130,7 @@ export const SEED_PROFILES: readonly SeedProfile[] = [
     location: "Gurugram",
     bio: "Consultant by weekday, amateur baker on Sundays. My sourdough starter has a name and a following.",
     interests: ["Baking", "Running", "Finance", "Board games"],
+    note: "My sourdough starter wants to meet you. So do I.",
   },
   {
     name: "Anika Desai",
@@ -125,6 +139,7 @@ export const SEED_PROFILES: readonly SeedProfile[] = [
     location: "MIT-WPU, Pune",
     bio: "Computer science student building a weather app nobody asked for. Fuelled entirely by iced coffee.",
     interests: ["Coding", "Weather", "Iced coffee", "Anime"],
+    note: "I built a weather app. Forecast: 100% chance of coffee with you.",
   },
   {
     name: "Reyansh Pillai",
@@ -133,6 +148,7 @@ export const SEED_PROFILES: readonly SeedProfile[] = [
     location: "NIT Calicut, Kerala",
     bio: "Mechanical engineering student and the person you call when your bike breaks down. Sunset chaser.",
     interests: ["Motorcycles", "Sunsets", "Cricket", "Mechanics"],
+    note: "Sunset ride? I'll bring the helmet and the playlist.",
   },
   {
     name: "Navya Menon",
@@ -141,6 +157,7 @@ export const SEED_PROFILES: readonly SeedProfile[] = [
     location: "Bengaluru",
     bio: "UX researcher who asks follow-up questions for fun. Plant parent to eleven slightly dramatic succulents.",
     interests: ["Plants", "UX", "Yoga", "Board games"],
+    note: "I have eleven succulents and one open spot next to me on the sofa.",
   },
   {
     name: "Ishaan Chopra",
@@ -149,6 +166,7 @@ export const SEED_PROFILES: readonly SeedProfile[] = [
     location: "Delhi",
     bio: "Stand-up open mic regular with a 40 percent success rate. Will trade a bad joke for a good momo.",
     interests: ["Comedy", "Momos", "Writing", "Cricket"],
+    note: "I'll trade you one bad joke for a good momo. Fair?",
   },
   {
     name: "Pari Verma",
@@ -157,6 +175,7 @@ export const SEED_PROFILES: readonly SeedProfile[] = [
     location: "Amity University, Noida",
     bio: "Fresher still learning the metro map. Into K-dramas, sketchbooks and late-night maggi.",
     interests: ["K-dramas", "Sketching", "Maggi", "Nail art"],
+    note: "Maggi at midnight and K-dramas? I know a place. 🍜",
   },
   {
     name: "Advait Kulkarni",
@@ -165,6 +184,7 @@ export const SEED_PROFILES: readonly SeedProfile[] = [
     location: "COEP, Pune",
     bio: "Electronics student and weekend photographer. I shoot film because I like waiting for surprises.",
     interests: ["Photography", "Electronics", "Trekking", "Film"],
+    note: "I shoot film because I like waiting for surprises. You're one.",
   },
   {
     name: "Riya Banerjee",
@@ -173,6 +193,7 @@ export const SEED_PROFILES: readonly SeedProfile[] = [
     location: "Presidency University, Kolkata",
     bio: "History nerd who gives unsolicited walking tours of old Kolkata. Fish curry over everything.",
     interests: ["History", "Street food", "Adda", "Photography"],
+    note: "I'd love to give you the unsolicited walking tour of old Kolkata.",
   },
   {
     name: "Samar Bhatia",
@@ -181,6 +202,7 @@ export const SEED_PROFILES: readonly SeedProfile[] = [
     location: "Mumbai",
     bio: "Film editor who can quote scenes from memory. Looking for a co-pilot for slow Sunday brunches.",
     interests: ["Film", "Brunch", "Music", "Cycling"],
+    note: "Slow Sunday brunch and movie quotes. Say yes?",
   },
   {
     name: "Kiara Shah",
@@ -189,6 +211,7 @@ export const SEED_PROFILES: readonly SeedProfile[] = [
     location: "NMIMS, Mumbai",
     bio: "Marketing student with a spreadsheet for everything, including my snack budget. Garba is life.",
     interests: ["Garba", "Marketing", "Snacks", "Travel"],
+    note: "Garba partner wanted. I've budgeted snacks for both of us.",
   },
   {
     name: "Dev Agarwal",
@@ -197,6 +220,7 @@ export const SEED_PROFILES: readonly SeedProfile[] = [
     location: "VIT Vellore, Tamil Nadu",
     bio: "Third-year CSE student, full-time gym rat, part-time hackathon survivor. Ask me about my last all-nighter.",
     interests: ["Hackathons", "Gym", "Football", "Coding"],
+    note: "I survived three hackathons. Coffee to hear about the all-nighters?",
   },
   {
     name: "Sneha Pandey",
@@ -205,6 +229,7 @@ export const SEED_PROFILES: readonly SeedProfile[] = [
     location: "Lucknow",
     bio: "Doctor in the making and a terrible sleeper. I bake when I am stressed, so you can guess how often.",
     interests: ["Baking", "Medicine", "Kathak", "Mystery novels"],
+    note: "I bake when I'm stressed, and I'm a little stressed about this note. 🍪",
   },
   {
     name: "Yash Thakur",
@@ -213,6 +238,7 @@ export const SEED_PROFILES: readonly SeedProfile[] = [
     location: "IIT Roorkee, Uttarakhand",
     bio: "Civil engineering student who has opinions about every bridge. Mountains over beaches, no negotiation.",
     interests: ["Mountains", "Bridges", "Chess", "Cricket"],
+    note: "Mountains over beaches, no negotiation. Convince me otherwise?",
   },
   {
     name: "Zoya Khan",
@@ -221,6 +247,7 @@ export const SEED_PROFILES: readonly SeedProfile[] = [
     location: "Jamia Millia Islamia, Delhi",
     bio: "Mass communication student behind the lens. Always chasing golden hour and a good paratha.",
     interests: ["Filmmaking", "Parathas", "Poetry", "Street photography"],
+    note: "Golden hour, a good paratha, and you. Let's go.",
   },
   {
     name: "Neel Saxena",
@@ -229,6 +256,7 @@ export const SEED_PROFILES: readonly SeedProfile[] = [
     location: "Indore",
     bio: "Runs a small family cafe and a smaller podcast. Poha is a personality trait, not just breakfast.",
     interests: ["Podcasts", "Poha", "Entrepreneurship", "Badminton"],
+    note: "Poha is a personality trait. Come to the cafe and see.",
   },
   {
     name: "Mahi Rathore",
@@ -237,6 +265,7 @@ export const SEED_PROFILES: readonly SeedProfile[] = [
     location: "Manipal University, Karnataka",
     bio: "Pharmacy student and part-time baker of surprisingly good brownies. Sunrise runs, then sleep all day.",
     interests: ["Running", "Brownies", "Pharmacy", "Sketching"],
+    note: "Sunrise run, then brownies on me. Deal?",
   },
   {
     name: "Aditya Bose",
@@ -245,6 +274,7 @@ export const SEED_PROFILES: readonly SeedProfile[] = [
     location: "Kolkata",
     bio: "Software tester who breaks things professionally and relationships never. Bengali sweets are my love language.",
     interests: ["Football", "Sweets", "Music", "Gaming"],
+    note: "Bengali sweets are my love language. Let me translate.",
   },
   {
     name: "Tanvi Jain",
@@ -253,6 +283,7 @@ export const SEED_PROFILES: readonly SeedProfile[] = [
     location: "St. Xavier's College, Ahmedabad",
     bio: "Commerce student and lifelong chai snob. Collects vintage postcards and bad puns.",
     interests: ["Postcards", "Chai", "Puns", "Thrifting"],
+    note: "I collect vintage postcards and bad puns. Send you one of each?",
   },
   {
     name: "Rudra Pratap",
@@ -261,6 +292,7 @@ export const SEED_PROFILES: readonly SeedProfile[] = [
     location: "Bhopal",
     bio: "Wildlife photography is my escape and a lot of waiting is my job. Early mornings feel like home.",
     interests: ["Wildlife", "Photography", "Birdwatching", "Cooking"],
+    note: "Birdwatching at dawn? Patience is my best feature.",
   },
   {
     name: "Ananya Das",
@@ -269,6 +301,7 @@ export const SEED_PROFILES: readonly SeedProfile[] = [
     location: "Tezpur University, Assam",
     bio: "Environmental science student who will not stop talking about hornbills. Tea garden girl at heart.",
     interests: ["Birdwatching", "Tea", "Ecology", "Folk music"],
+    note: "Hornbills, chai, and a very long story. Want to hear it?",
   },
   {
     name: "Karan Oberoi",
@@ -277,5 +310,6 @@ export const SEED_PROFILES: readonly SeedProfile[] = [
     location: "Goa",
     bio: "Sound engineer who moved to the coast for the sunsets and stayed for the live gigs. Will absolutely make you a playlist.",
     interests: ["Live music", "Surfing", "Audio gear", "Seafood"],
+    note: "I'll make you a playlist for the sunset. Name the mood.",
   },
 ];

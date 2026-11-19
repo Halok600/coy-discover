@@ -1,6 +1,7 @@
 import { and, eq, lt, notExists, or, sql } from "drizzle-orm";
 import type { Db } from "@/server/db/client";
 import { matches, swipes, users } from "@/server/db/schema";
+import { memberId, SEED_PROFILES } from "@/server/seed/profiles";
 
 export const VIEWER_DISPLAY_NAME = "You";
 export const VIEWER_MAX_IDLE_DAYS = 14;
@@ -10,24 +11,39 @@ export function admirerCount(viewerId: string): number {
   return 8 + (Number.parseInt(viewerId.slice(0, 2), 16) % 3);
 }
 
+/** The sealed note each seeded member sends with their like. */
+const ADMIRER_NOTES = new Map(
+  SEED_PROFILES.map((profile, index) => [memberId(index + 1), profile.note]),
+);
+
 /**
- * Makes a handful of seeded members "already like" the viewer so matches can
- * happen in a demo. They are stored as plain swipe rows and are only ever
- * revealed through the normal mutual-match path.
+ * Makes a handful of seeded members "already like" the viewer, each with a
+ * sealed note, so matches can happen in a demo. They are stored as plain swipe
+ * rows and are only ever revealed through the normal mutual-match path.
  *
  * Deterministic per viewer (salted hash order) and idempotent, so concurrent
  * or repeated calls insert exactly the same rows.
  */
 async function seedAdmirers(db: Db, viewerId: string): Promise<void> {
-  await db.execute(sql`
-    insert into swipes (swiper_id, target_id, action)
-    select id, ${viewerId}::uuid, 'like'::swipe_action
-    from users
-    where kind = 'member'
-    order by md5('admirer:' || ${viewerId}::text || id::text)
-    limit ${admirerCount(viewerId)}
-    on conflict do nothing
-  `);
+  const admirers = await db
+    .select({ id: users.id })
+    .from(users)
+    .where(eq(users.kind, "member"))
+    .orderBy(sql`md5('admirer:' || ${viewerId}::text || ${users.id}::text)`)
+    .limit(admirerCount(viewerId));
+  if (admirers.length === 0) return;
+
+  await db
+    .insert(swipes)
+    .values(
+      admirers.map(({ id }) => ({
+        swiperId: id,
+        targetId: viewerId,
+        action: "like" as const,
+        note: ADMIRER_NOTES.get(id) ?? null,
+      })),
+    )
+    .onConflictDoNothing();
 }
 
 /**

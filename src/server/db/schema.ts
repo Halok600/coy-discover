@@ -58,6 +58,11 @@ export const swipes = pgTable(
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
     action: swipeAction("action").notNull(),
+    /**
+     * A "sealed note": optional text sent with a like. It is only ever read
+     * back inside a mutual match, so a one-sided note stays unreadable.
+     */
+    note: text("note"),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
@@ -65,6 +70,12 @@ export const swipes = pgTable(
   (t) => [
     primaryKey({ columns: [t.swiperId, t.targetId] }),
     check("swipes_no_self_swipe", sql`${t.swiperId} <> ${t.targetId}`),
+    // Defense in depth: the API already refuses both of these.
+    check(
+      "swipes_note_only_on_like",
+      sql`${t.note} IS NULL OR ${t.action} = 'like'`,
+    ),
+    check("swipes_note_max_length", sql`char_length(${t.note}) <= 140`),
     index("swipes_target_idx").on(t.targetId),
   ],
 );

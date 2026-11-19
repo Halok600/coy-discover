@@ -30,10 +30,13 @@ export function toPublicProfile(row: UserRow): PublicProfile {
 export function toMatchDto(
   match: { id: string; createdAt: Date },
   profile: UserRow,
+  notes: { theirNote: string | null; yourNote: string | null },
 ): MatchDto {
   return {
     id: match.id,
     matchedAt: match.createdAt.toISOString(),
     profile: toPublicProfile(profile),
+    theirNote: notes.theirNote,
+    yourNote: notes.yourNote,
   };
 }

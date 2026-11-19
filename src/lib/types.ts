@@ -22,6 +22,12 @@ export type MatchDto = {
   /** ISO-8601 timestamp of the moment both people had liked each other. */
   matchedAt: string;
   profile: PublicProfile;
+  /**
+   * Sealed notes. They exist on the wire only inside a mutual match: a note
+   * on a one-sided like is never sent anywhere.
+   */
+  theirNote: string | null;
+  yourNote: string | null;
 };
 
 export type FeedResponse = {
