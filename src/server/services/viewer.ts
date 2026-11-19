@@ -59,6 +59,12 @@ export async function ensureViewer(db: Db, viewerId: string): Promise<boolean> {
 /** Wipes the viewer's swipes and matches and restores a fresh deck. */
 export async function resetViewer(db: Db, viewerId: string): Promise<void> {
   await db.transaction(async (tx) => {
+    // Same per-visitor lock as recordSwipe: wait for in-flight swipes to finish.
+    await tx
+      .select({ id: users.id })
+      .from(users)
+      .where(eq(users.id, viewerId))
+      .for("update");
     await tx
       .delete(matches)
       .where(or(eq(matches.userA, viewerId), eq(matches.userB, viewerId)));

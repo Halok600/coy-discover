@@ -22,6 +22,15 @@ export async function recordSwipe(
   action: SwipeAction,
 ): Promise<SwipeResponse> {
   return db.transaction(async (tx) => {
+    // Serialize this visitor's swipes with each other and with "Start over",
+    // so a reset can never run between a swipe and the match it creates.
+    const [self] = await tx
+      .select({ id: users.id })
+      .from(users)
+      .where(eq(users.id, viewerId))
+      .for("update");
+    if (!self) throw errors.unauthorized();
+
     const [target] = await tx
       .select()
       .from(users)
