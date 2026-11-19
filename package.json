@@ -18,7 +18,8 @@
     "db:migrate": "tsx --env-file-if-exists=.env.local scripts/migrate.ts",
     "db:seed": "tsx --env-file-if-exists=.env.local scripts/seed.ts",
     "e2e:server": "node -e \"require('fs').rmSync('.data/e2e',{recursive:true,force:true})\" && next build && next start -p 3200",
-    "screenshots": "tsx scripts/screenshots.ts"
+    "screenshots": "tsx scripts/screenshots.ts",
+    "loadtest": "tsx scripts/loadtest.ts"
   },
   "dependencies": {
     "@electric-sql/pglite": "^0.5.16",
@@ -33,6 +34,7 @@
     "zod": "^4.6.7"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
     "@playwright/test": "^1.65.1",
     "@tailwindcss/turbopack": "4.3.3",
     "@types/node": "^24.19.2",

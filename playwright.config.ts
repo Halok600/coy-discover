@@ -18,7 +18,12 @@ export default defineConfig({
     trace: "retain-on-failure",
   },
   projects: [
-    { name: "mobile", use: { ...devices["Pixel 7"] } },
+    {
+      name: "mobile",
+      use: { ...devices["Pixel 7"] },
+      // Pure HTTP tests don't depend on the device, so run them once.
+      testIgnore: /api-hostile/,
+    },
     { name: "desktop", use: { ...devices["Desktop Chrome"] } },
   ],
   // Builds the app and serves it on an embedded database that is wiped first,
